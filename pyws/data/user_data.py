@@ -1,0 +1,48 @@
+from datetime import datetime
+
+from pyws import db
+from pyws.data.base_data import BaseData
+from pyws.data.model.user_model import UserModel
+from pyws.helper import data_helper
+
+
+class UserData(BaseData):
+    def __init__(self):
+        self.model_class = UserModel
+
+    def update(self, user, info):
+        """
+        Update a user with the given info
+
+        :param user: user model
+        :param info: dictionary
+        :return: updated user model
+        """
+
+        data_helper.filter_private_columns(self.model_class, info)
+
+        for key in info.keys():
+            if key in user.__table__.columns.keys():
+                setattr(user, key, info[key])
+
+                if key == 'estimated_age':
+                    setattr(user, 'age_last_modified', datetime.utcnow())
+
+        db.session.add(user)
+        db.session.commit()
+
+        return user
+
+    def delete(self, user):
+        """
+        Mark user as deleted
+
+        :param user: user model
+        :return: True
+        """
+
+        user.deleted = datetime.utcnow()
+        db.session.add(user)
+        db.session.commit()
+
+        return True
