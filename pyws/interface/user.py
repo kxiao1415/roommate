@@ -1,8 +1,37 @@
 from flask import request
 
 from pyws import app
-from pyws.service import user_service
+from pyws.service import user_service, auth_service
 from pyws.helper.jsonify_response import jsonify_response
+
+
+@app.route('/users/authenticate/', methods=['POST'])
+def authenticate_user():
+    """
+    Authenticate user
+
+    **sample request**
+
+        curl -X POST 'http://localhost:5000/users/authenticate/'
+        --header "Content-Type: application/json"
+        --data '{
+                    "user_name": "test_user_name",
+                    "password": "password"
+                }
+
+
+    **sample response**
+
+        {
+            "token": "Y2QyYjJlYTMxMjA1NDMwMTg5ZDJhMDhlYjk1MTU1Yjg"
+        }
+
+    """
+    user_name = request.json['user_name']
+    password = request.json['password']
+
+    token = auth_service.authenticate_user(user_name, password)
+    return jsonify_response(token=token)
 
 
 @app.route('/users/<user_id>', methods=['GET'])

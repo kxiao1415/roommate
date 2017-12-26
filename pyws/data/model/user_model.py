@@ -25,6 +25,8 @@ class UserModel(db.Model, BaseModel):
     created = db.Column(db.DateTime, default=datetime.utcnow)
     age_last_modified = db.Column(db.DateTime, default=datetime.utcnow)
     deleted = db.Column(db.DateTime)
+    password = db.Column(EncryptedType(db.Unicode(64), app.config['SECRET_KEY']), nullable=False)
+    profile_picture = db.Column(db.Unicode(140))
 
     # columns that should not be updated manually
     _private_columns = ['id',

@@ -46,3 +46,6 @@ class UserData(BaseData):
         db.session.commit()
 
         return True
+
+    def get_user_by_user_name(self, user_name):
+        return db.session.query(self.model_class).filter_by(user_name=user_name).first()
