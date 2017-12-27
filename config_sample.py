@@ -10,6 +10,11 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:fakepassword@localhost/fake_db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    REDIS_HOST = 'localhost'
+    REDIS_PORT = 6379
+    REDIS_DB = 0
+    # REDIS_URL = 'redis://localhost:6379/0'
+
 
 class ProductionConfig(Config):
     DEBUG = False
