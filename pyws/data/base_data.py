@@ -1,9 +1,9 @@
-from pyws import db
-from pyws.helper import data_helper
+from flask_sqlalchemy import SQLAlchemy
 
+
+db = SQLAlchemy()
 
 class BaseData(object):
-
     def get(self, id):
         """
         Get a model by id
@@ -22,8 +22,6 @@ class BaseData(object):
         :return: newly created model
         """
 
-        data_helper.filter_private_columns(self.model_class, info)
-
         new_model = self.model_class(info)
         db.session.add(new_model)
         db.session.commit()
@@ -38,8 +36,6 @@ class BaseData(object):
         :param info: dictionary
         :return: updated model
         """
-
-        data_helper.filter_private_columns(self.model_class, info)
 
         for key in info.keys():
             if key in model.__table__.columns.keys():

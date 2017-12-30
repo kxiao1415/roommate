@@ -1,7 +1,7 @@
 from pyws.service import user_service
 from pyws.service import cache_service
 from pyws.helper import string_helper
-from pyws.constants.cache_constants import USER_TOKEN_KEY
+from pyws.constants.cache_constants import USER_TOKEN_KEY, TOKEN_USER_KEY
 
 
 def authenticate_user(user_name, password):
@@ -13,6 +13,11 @@ def authenticate_user(user_name, password):
     token = string_helper.generate_guid()
 
     # store token in redis
-    cache_service.set(USER_TOKEN_KEY.format(user.id), token)
+    cache_auth_keys(user, token)
 
     return token
+
+
+def cache_auth_keys(user, token):
+    cache_service.hmset(TOKEN_USER_KEY.format(token=token), {'id': user.id})
+    cache_service.set(USER_TOKEN_KEY.format(user_id=user.id), token)

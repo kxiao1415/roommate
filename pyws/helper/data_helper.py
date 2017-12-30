@@ -10,6 +10,7 @@ def filter_private_columns(model_class, info):
     for key in model_class.private_columns():
         if key in info:
             del info[key]
+    return info
 
 
 def filter_deleted_model(model):

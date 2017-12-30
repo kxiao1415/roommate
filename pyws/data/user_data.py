@@ -1,9 +1,8 @@
 from datetime import datetime
 
-from pyws import db
+from pyws.data.base_data import db
 from pyws.data.base_data import BaseData
 from pyws.data.model.user_model import UserModel
-from pyws.helper import data_helper
 
 
 class UserData(BaseData):
@@ -18,8 +17,6 @@ class UserData(BaseData):
         :param info: dictionary
         :return: updated user model
         """
-
-        data_helper.filter_private_columns(self.model_class, info)
 
         for key in info.keys():
             if key in user.__table__.columns.keys():

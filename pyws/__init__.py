@@ -1,15 +1,31 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_redis import FlaskRedis
+from flask import Flask, Blueprint
+
+latest = Blueprint('latest', __name__)
 
 
-app = Flask(__name__)
-app.config.from_object('config.DevelopmentConfig')
+def create_app(config_name):
 
-# database connection
-db = SQLAlchemy(app)
+    app = Flask(__name__)
+    app.config.from_object(config_name)
 
-# redis connection
-redis = FlaskRedis(app)
+    # treat /some/url/ and /some/url the same
+    app.url_map.strict_slashes = False
 
-from pyws.interface import user
+
+    from pyws.data.base_data import db
+    # db connection
+    db.init_app(app)
+
+    from pyws.service.cache_service import redis
+    # redis connection
+    redis.init_app(app)
+
+    # server-level interface
+    from pyws.interface import request_life_cycle
+
+    # app lever interface
+    from pyws.interface import user
+
+    app.register_blueprint(latest)
+
+    return app
