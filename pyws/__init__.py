@@ -18,7 +18,7 @@ def create_app(config_name):
 
     from pyws.service.cache_service import redis
     # redis connection
-    redis.init_app(app)
+    redis.init_app(app, decode_responses=True)
 
     # server-level interface
     from pyws.interface import request_life_cycle

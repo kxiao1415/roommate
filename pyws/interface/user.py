@@ -130,7 +130,7 @@ def create_user():
 
 @latest.route('/users/<user_id>', methods=['PUT'])
 @limit(requests=30, window=60, by="ip")
-@auth_required
+@auth_required('user_id')
 def update_user(user_id):
     """
     Update a user
@@ -183,7 +183,7 @@ def update_user(user_id):
 
 @latest.route('/users/<user_id>', methods=['DELETE'])
 @limit(requests=30, window=60, by="ip")
-@auth_required
+@auth_required('user_id')
 def delete_user(user_id):
     """
     Delete a user by user id

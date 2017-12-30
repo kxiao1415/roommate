@@ -1,5 +1,7 @@
 from flask import request, g
 from functools import wraps
+from inspect import getcallargs
+
 from pyws.service import cache_service
 from pyws.constants.cache_constants import REQUEST_LIMIT_KEY, TOKEN_USER_KEY
 
@@ -95,17 +97,60 @@ def limit(requests=100, window=60, by="ip", group=None):
     return decorator
 
 
-def auth_required(f):
+def auth_required(*resources):
     """
+    **User Example 1**
 
+        @auth_required()
+        def delete_user(user_id):
+            pass
 
-    :param f:
+        1. Makes sure that the caller is authenticated, i.e. There is a valid token in the header
+
+    **User Example 2**
+
+        @auth_required('user_id')
+        def delete_user(user_id):
+            pass
+
+        1. Makes sure that the caller is authenticated, i.e. There is a valid token in the header
+        2. Makes sure that the authenticated caller is allowed to access the user_id
+
+    :param expected_args:
     :return:
     """
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        token_exits = cache_service.exists(TOKEN_USER_KEY.format(token=g.token))
-        if token_exits is False:
-            Exception(u'Authentication required.')
-        return f(*args, **kwargs)
-    return decorated_function
+    def user_id_validator(user_id):
+        """
+        Checked to see if the cached user id corresponding to the token is the same as the accessed user id
+
+        :param user_id:
+        :return:
+        """
+        cached_user_info = cache_service.hgetall(TOKEN_USER_KEY.format(token=g.token))
+        return user_id == cached_user_info['id']
+
+    resource_validator_map = {
+        'user_id': user_id_validator
+    }
+
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            token_exits = cache_service.exists(TOKEN_USER_KEY.format(token=g.token))
+            if token_exits is False:
+                raise Exception(u'Authentication required.')
+
+            function_arg_value_dict = getcallargs(f, *args, **kwargs)
+            for resource in resources:
+                # check to see if the resource is passed in as a function parameter
+                if resource not in function_arg_value_dict:
+                    raise Exception(u'Resource {0} does not exist in the function arguments.'.format(resource))
+
+                arg_value = function_arg_value_dict[resource]
+                # check to see if the caller has access to the resources
+                if not resource_validator_map[resource](arg_value):
+                    raise Exception(u'User is not allowed to access this resource id {0}'.format(arg_value))
+
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
