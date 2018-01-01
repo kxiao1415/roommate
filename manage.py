@@ -1,11 +1,10 @@
-import os
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
-from pyws import app, db
+from pyws import create_app
+from pyws.data.base_data import db
 
-
-app.config.from_object('config.DevelopmentConfig')
+app = create_app('config.DevelopmentConfig')
 
 migrate = Migrate(app, db)
 manager = Manager(app)

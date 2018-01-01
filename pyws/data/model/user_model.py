@@ -55,5 +55,9 @@ class UserModel(db.Model, BaseModel):
     def required_columns(cls):
         return cls._required_columns
 
+    @classmethod
+    def hidden_columns(cls):
+        return cls._hidden_columns
+
     def __repr__(self):
         return '<id: {0}>'.format(self.id)

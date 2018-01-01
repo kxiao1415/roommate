@@ -1,17 +1,18 @@
 """empty message
 
-Revision ID: 8d3fd26e0d23
+Revision ID: ad04c5fe8f39
 Revises: None
-Create Date: 2017-12-25 16:53:42.155809
+Create Date: 2018-01-01 17:22:11.245261
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '8d3fd26e0d23'
+revision = 'ad04c5fe8f39'
 down_revision = None
 
 from alembic import op
 import sqlalchemy as sa
+from config import Config
 from sqlalchemy_utils import EncryptedType
 
 
@@ -22,8 +23,8 @@ def upgrade():
     sa.Column('user_name', sa.Unicode(length=64), nullable=False),
     sa.Column('first_name', sa.Unicode(length=64), nullable=False),
     sa.Column('last_name', sa.Unicode(length=64), nullable=False),
-    sa.Column('email', EncryptedType(), nullable=False),
-    sa.Column('phone', EncryptedType(), nullable=True),
+    sa.Column('email', EncryptedType(sa.Unicode(64), Config.SECRET_KEY), nullable=False),
+    sa.Column('phone', EncryptedType(sa.Unicode(64), Config.SECRET_KEY), nullable=True),
     sa.Column('gender', sa.Enum('M', 'F', name='gender_enum'), nullable=True),
     sa.Column('short_description', sa.Unicode(length=140), nullable=True),
     sa.Column('long_description', sa.UnicodeText(), nullable=True),
@@ -34,7 +35,7 @@ def upgrade():
     sa.Column('created', sa.DateTime(), nullable=True),
     sa.Column('age_last_modified', sa.DateTime(), nullable=True),
     sa.Column('deleted', sa.DateTime(), nullable=True),
-    sa.Column('password', EncryptedType(), nullable=False),
+    sa.Column('password', EncryptedType(sa.Unicode(64), Config.SECRET_KEY), nullable=False),
     sa.Column('profile_picture', sa.Unicode(length=140), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )

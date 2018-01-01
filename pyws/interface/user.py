@@ -78,7 +78,7 @@ def get_user(user_id):
     if user is None:
         raise Exception('Invalid user id.')
 
-    return jsonify_response(user=user.to_json())
+    return jsonify_response(user=user.to_json(filter_hidden_columns=True))
 
 
 @latest.route('/users/', methods=['POST'])
@@ -125,7 +125,8 @@ def create_user():
 
     clean_user_info = data_helper.filter_private_columns(UserModel, request.json)
     new_user = user_service.create_user(clean_user_info)
-    return jsonify_response(new_user=new_user.to_json())
+
+    return jsonify_response(new_user=new_user.to_json(filter_hidden_columns=True))
 
 
 @latest.route('/users/<user_id>', methods=['PUT'])
@@ -179,7 +180,7 @@ def update_user(user_id):
     clean_user_info = data_helper.filter_private_columns(UserModel, request.json)
     updated_user = user_service.update_user(user, clean_user_info)
 
-    return jsonify_response(updated_user=updated_user.to_json())
+    return jsonify_response(updated_user=updated_user.to_json(filter_hidden_columns=True))
 
 
 @latest.route('/users/<user_id>', methods=['DELETE'])
