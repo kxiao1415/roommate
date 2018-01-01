@@ -36,6 +36,16 @@ class RedisStore(object):
         """
         return self.conn.hgetall(key)
 
+    def hmget(self, key, member, *args):
+        """
+        Gets the value of a member
+
+        :param key:
+        :param member:
+        :return:
+        """
+
+        return self.conn.hmget(key, member, *args)
 
     def set(self, key, value, timeout_in_sec=DEFAULT_TIMEOUT_IN_SECS):
         """

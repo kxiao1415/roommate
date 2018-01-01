@@ -2,8 +2,10 @@ from flask import request, g
 from functools import wraps
 from inspect import getcallargs
 
-from pyws.service.cache import cache_service
+from pyws.service.cache.redis_connector import RedisStore
 from pyws.service.cache.cache_constants import REQUEST_LIMIT_KEY, TOKEN_USER_KEY
+
+_redis_store = RedisStore()
 
 
 def validate_json(*expected_args):
@@ -78,17 +80,17 @@ def limit(requests=100, window=60, by="ip", group=None):
             key = REQUEST_LIMIT_KEY.format(endpoint=local_group, ip=by())
 
             try:
-                remaining = requests - int(cache_service.get(key))
+                remaining = requests - int(_redis_store.get(key))
             except (ValueError, TypeError):
                 remaining = requests
-                cache_service.set(key, 0, timeout_in_sec=None)
+                _redis_store.set(key, 0, timeout_in_sec=None)
 
-            ttl = cache_service.ttl(key)
+            ttl = _redis_store.ttl(key)
             if not ttl:
-                cache_service.expire(key, window)
+                _redis_store.expire(key, window)
 
             if remaining > 0:
-                cache_service.incr(key, 1)
+                _redis_store.incr(key, 1)
             else:
                 raise Exception(u'Too many requests.')
 
@@ -126,7 +128,7 @@ def auth_required(*resources):
         :param user_id:
         :return:
         """
-        cached_user_info = cache_service.hgetall(TOKEN_USER_KEY.format(token=g.token))
+        cached_user_info = _redis_store.hgetall(TOKEN_USER_KEY.format(token=g.token))
         return user_id == cached_user_info['id']
 
     resource_validator_map = {
@@ -136,7 +138,7 @@ def auth_required(*resources):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            token_exits = cache_service.exists(TOKEN_USER_KEY.format(token=g.token))
+            token_exits = _redis_store.exists(TOKEN_USER_KEY.format(token=g.token))
             if token_exits is False:
                 raise Exception(u'Authentication required.')
 

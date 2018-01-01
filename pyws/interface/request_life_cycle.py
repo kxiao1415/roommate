@@ -4,6 +4,7 @@ import uuid
 from flask import current_app, g, request
 from pyws import latest
 from pyws.helper.jsonify_response import jsonify_response
+from pyws.service.cache import cache_service
 
 
 @latest.before_request
@@ -18,6 +19,10 @@ def before_request_callback(*args, **kwargs):
     g.token = None
     if 'x-token' in headers_lowercase_keys:
         g.token = headers_lowercase_keys['x-token']
+
+    # extend auth token keys is token is valid
+    if cache_service.verify_auth_token(g.token):
+        cache_service.extend_cached_auth_keys(g.token)
 
     # log request
     current_app.logger.info(u'>>> start request: {0} {1} {2}'

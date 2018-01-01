@@ -1,8 +1,10 @@
 from pyws.service import user_service
+from pyws.service.cache.redis_connector import RedisStore
 from pyws.service.cache import cache_service
 from pyws.helper import string_helper
-from pyws.service.cache.cache_constants import USER_TOKEN_KEY, TOKEN_USER_KEY
-from pyws.service.cache.cache_constants import DEFAULT_TIMEOUT_IN_SECS
+from pyws.service.cache.cache_constants import USER_TOKEN_KEY
+
+_redis_store = RedisStore()
 
 
 def authenticate_user(user_name, password):
@@ -11,25 +13,15 @@ def authenticate_user(user_name, password):
         raise Exception('No user matching the user_name and password combination.')
 
     # retrieve existing token from cache is exists
-    if cache_service.exists(USER_TOKEN_KEY.format(user_id=user.id)):
-        token = cache_service.get(USER_TOKEN_KEY.format(user_id=user.id))
-        extend_cached_auth_keys(user, token)
+    if _redis_store.exists(USER_TOKEN_KEY.format(user_id=user.id)):
+        token = _redis_store.get(USER_TOKEN_KEY.format(user_id=user.id))
+        cache_service.extend_cached_auth_keys(token)
         return token
 
     # create token
     token = string_helper.generate_guid()
 
     # store token in redis
-    cache_auth_keys(user, token)
+    cache_service.cache_auth_keys(user, token)
 
     return token
-
-
-def cache_auth_keys(user, token):
-    cache_service.hmset(TOKEN_USER_KEY.format(token=token), {'id': user.id})
-    cache_service.set(USER_TOKEN_KEY.format(user_id=user.id), token)
-
-
-def extend_cached_auth_keys(user, token):
-    cache_service.expire(TOKEN_USER_KEY.format(token=token), timeout_in_sec=DEFAULT_TIMEOUT_IN_SECS)
-    cache_service.expire(USER_TOKEN_KEY.format(user_id=user.id), timeout_in_sec=DEFAULT_TIMEOUT_IN_SECS)

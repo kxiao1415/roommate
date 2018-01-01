@@ -129,6 +129,7 @@ def create_user():
 
 
 @latest.route('/users/<user_id>', methods=['PUT'])
+@validate_json()
 @limit(requests=30, window=60, by="ip")
 @auth_required('user_id')
 def update_user(user_id):
