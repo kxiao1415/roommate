@@ -16,7 +16,7 @@ def create_app(config_name):
     # db connection
     db.init_app(app)
 
-    from pyws.service.cache_service import redis
+    from pyws.service.cache.cache_service import redis
     # redis connection
     redis.init_app(app, decode_responses=True)
 

@@ -2,8 +2,8 @@ from flask import request, g
 from functools import wraps
 from inspect import getcallargs
 
-from pyws.service import cache_service
-from pyws.constants.cache_constants import REQUEST_LIMIT_KEY, TOKEN_USER_KEY
+from pyws.service.cache import cache_service
+from pyws.service.cache.cache_constants import REQUEST_LIMIT_KEY, TOKEN_USER_KEY
 
 
 def validate_json(*expected_args):

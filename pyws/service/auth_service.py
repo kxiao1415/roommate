@@ -1,8 +1,8 @@
 from pyws.service import user_service
-from pyws.service import cache_service
+from pyws.service.cache import cache_service
 from pyws.helper import string_helper
-from pyws.constants.cache_constants import USER_TOKEN_KEY, TOKEN_USER_KEY
-from pyws.constants.cache_constants import DEFAULT_TIMEOUT_IN_SECS
+from pyws.service.cache.cache_constants import USER_TOKEN_KEY, TOKEN_USER_KEY
+from pyws.service.cache.cache_constants import DEFAULT_TIMEOUT_IN_SECS
 
 
 def authenticate_user(user_name, password):

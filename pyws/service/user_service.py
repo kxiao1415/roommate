@@ -2,8 +2,8 @@ from flask import g
 
 from pyws.data.user_data import UserData
 from pyws.helper import data_helper
-from pyws.service import cache_service
-from pyws.constants.cache_constants import USER_TOKEN_KEY, TOKEN_USER_KEY
+from pyws.service.cache import cache_service
+from pyws.service.cache.cache_constants import USER_TOKEN_KEY, TOKEN_USER_KEY
 
 _user_data = UserData()
 
