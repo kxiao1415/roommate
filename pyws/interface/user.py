@@ -32,6 +32,7 @@ def authenticate_user():
         }
 
     """
+
     user_name = request.json['user_name']
     password = request.json['password']
 

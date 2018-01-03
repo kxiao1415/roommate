@@ -6,6 +6,7 @@ from pyws.data.model.user_model import UserModel
 
 
 class UserData(BaseData):
+
     def __init__(self):
         self.model_class = UserModel
 

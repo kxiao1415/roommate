@@ -1,6 +1,7 @@
 import json
 from flask import current_app
 
+
 def jsonify_response(status_code=200, *args, **kwargs):
 
     json_response = json.dumps(dict(*args, **kwargs))

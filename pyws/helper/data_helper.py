@@ -20,6 +20,7 @@ def filter_deleted_model(model):
     :param model: model
     :return: model or None
     """
+
     if model is None or model.deleted:
         return None
     return model

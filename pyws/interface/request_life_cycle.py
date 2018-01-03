@@ -61,6 +61,7 @@ def catch_all(exc):
     :param exc: exception
     :return:
     """
+
     error = {
         'type': 'generic',
         'msg': str(exc)

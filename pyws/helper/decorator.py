@@ -30,6 +30,7 @@ def validate_json(*expected_args):
     :param expected_args:
     :return:
     """
+
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
@@ -70,6 +71,7 @@ def limit(requests=100, window=60, by="ip", group=None):
     :param group: request endpoint
     :return:
     """
+
     if not callable(by):
         by = { 'ip': lambda: request.remote_addr }[by]
 
@@ -118,9 +120,10 @@ def auth_required(*resources):
         1. Makes sure that the caller is authenticated, i.e. There is a valid token in the header
         2. Makes sure that the authenticated caller is allowed to access the user_id
 
-    :param expected_args:
+    :param resources:
     :return:
     """
+
     def user_id_validator(user_id):
         """
         Checked to see if the cached user id corresponding to the token is the same as the accessed user id

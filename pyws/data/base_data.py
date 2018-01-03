@@ -1,9 +1,10 @@
 from flask_sqlalchemy import SQLAlchemy
 
-
 db = SQLAlchemy()
 
+
 class BaseData(object):
+
     def get(self, id):
         """
         Get a model by id

@@ -7,6 +7,7 @@ from pyws.data.model.base_model import BaseModel
 
 
 class UserModel(db.Model, BaseModel):
+
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
