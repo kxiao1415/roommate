@@ -142,6 +142,7 @@ def update_user(user_id):
 
         curl -X PUT 'http://localhost:5000/users/1'
         --header "Content-Type: application/json"
+        --header "X-TOKEN: MDhjOTliMzg1Y2Q2NDA5ZTgwNzg4NGY3NjM1NTQ0M2U"
         --data '{
                     "email": "test@email.com",
                     "first_name": "test_first_name",
@@ -194,11 +195,13 @@ def delete_user(user_id):
     **sample request**
 
         curl -X DELETE 'http://localhost:5000/users/1'
+        --header "Content-Type: application/json"
+        --header "X-TOKEN: MDhjOTliMzg1Y2Q2NDA5ZTgwNzg4NGY3NjM1NTQ0M2U"
 
     **sample response**
 
         {
-            "deleted": true
+            "success": true
         }
 
     """
@@ -209,4 +212,4 @@ def delete_user(user_id):
         raise Exception('Invalid user id.')
 
     result = user_service.delete_user(user)
-    return jsonify_response(deleted=result)
+    return jsonify_response(success=result)

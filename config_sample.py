@@ -15,6 +15,7 @@ class Config(object):
     REDIS_DB = 0
     # REDIS_URL = 'redis://localhost:6379/0'
 
+    UPLOAD_FOLDER = '/var/www/roommate/storage/'
 
 class ProductionConfig(Config):
     DEBUG = False

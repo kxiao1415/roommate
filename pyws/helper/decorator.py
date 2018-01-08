@@ -1,3 +1,5 @@
+import os
+
 from flask import request, g
 from functools import wraps
 from inspect import getcallargs
@@ -48,6 +50,53 @@ def validate_json(*expected_args):
             if missing_fields:
                 raise Exception('Required fields [ {0} ] are missing from json payload.'
                                 .format(', '.join(missing_fields)))
+
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+
+def validate_file(allowed_extensions=None):
+    """
+    **User Example 1**
+
+        @validate_file()
+        def upload_user_photo(user_id):
+            pass
+
+        1. Makes sure 'files' is part of the request
+
+    **User Example 2**
+
+        @validate_file(allowed_extensions=['.png', '.jpg'])
+        def upload_user_photo(user_id):
+            pass
+
+        1. Makes sure 'files' is part of the request
+        2. Makes sure the file extension is allowed
+
+    :param allowed_extensions:
+    :return:
+    """
+
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if 'file' not in request.files:
+                raise Exception(u'Missing file part in the request. '
+                                u'Tip: Try including "-F file=@image.png".')
+
+            file = request.files['file']
+
+            if file.filename == '':
+                raise Exception(u'No file selected.')
+
+            # check to see if the file extension is allowed
+            if allowed_extensions:
+                file_ext = os.path.splitext(file.filename)[1]
+                if file_ext not in allowed_extensions:
+                    raise Exception(u'Only files with {0} exts are allowed.'
+                                    .format(allowed_extensions))
 
             return f(*args, **kwargs)
         return decorated_function

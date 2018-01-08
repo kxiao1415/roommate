@@ -21,6 +21,7 @@ def create_app(config_name):
 
     # app lever interface
     from pyws.interface import user
+    from pyws.interface import file_upload
 
     app.register_blueprint(latest)
 
