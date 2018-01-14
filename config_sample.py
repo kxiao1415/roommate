@@ -17,6 +17,7 @@ class Config(object):
 
     UPLOAD_FOLDER = '/var/www/roommate/storage/'
 
+
 class ProductionConfig(Config):
     DEBUG = False
 

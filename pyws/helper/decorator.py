@@ -3,6 +3,7 @@ import os
 from flask import request, g
 from functools import wraps
 from inspect import getcallargs
+from config import Config
 
 from pyws.service.cache.redis_connector import RedisStore
 from pyws.service.cache.cache_constants import REQUEST_LIMIT_KEY, TOKEN_USER_KEY
@@ -190,6 +191,10 @@ def auth_required(*resources):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
+            # bypass authentication with privileged token
+            if g.token == Config.SECRET_KEY:
+                return f(*args, **kwargs)
+
             token_exits = _redis_store.exists(TOKEN_USER_KEY.format(token=g.token))
             if token_exits is False:
                 raise Exception(u'Authentication required.')

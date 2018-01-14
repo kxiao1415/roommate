@@ -1,5 +1,6 @@
 # ignore config file
 config.py
+test_config.py
 
 # ignore IDE folder
 .idea/

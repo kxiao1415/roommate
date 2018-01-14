@@ -127,7 +127,7 @@ def create_user():
     clean_user_info = data_helper.filter_private_columns(UserModel, request.json)
     new_user = user_service.create_user(clean_user_info)
 
-    return jsonify_response(new_user=new_user.to_json(filter_hidden_columns=True))
+    return jsonify_response(user=new_user.to_json(filter_hidden_columns=True))
 
 
 @latest.route('/users/<user_id>', methods=['PUT'])
@@ -185,12 +185,45 @@ def update_user(user_id):
     return jsonify_response(updated_user=updated_user.to_json(filter_hidden_columns=True))
 
 
-@latest.route('/users/<user_id>', methods=['DELETE'])
+@latest.route('/users/<user_id>/deleted', methods=['PUT'])
 @limit(requests=30, window=60, by="ip")
 @auth_required('user_id')
 def delete_user(user_id):
     """
-    Delete a user by user id
+    Mark a user as deleted by user id
+
+    **sample request**
+
+        curl -X PUT 'http://localhost:5000/users/1/deleted'
+        --header "Content-Type: application/json"
+        --header "X-TOKEN: MDhjOTliMzg1Y2Q2NDA5ZTgwNzg4NGY3NjM1NTQ0M2U"
+
+    **sample response**
+
+        {
+            "success": true
+        }
+
+    """
+
+    user = user_service.get_user_by_user_id(user_id)
+
+    if not user:
+        raise Exception('Invalid user id.')
+
+    result = user_service.delete_user(user)
+    return jsonify_response(success=result)
+
+
+@latest.route('/users/<user_id>', methods=['DELETE'])
+@auth_required('user_id')
+def hard_delete_user(user_id):
+    """
+    Hard delete a user by user id
+
+    !!!Important!!!
+
+    This end point should not be exposed to public
 
     **sample request**
 
@@ -211,5 +244,5 @@ def delete_user(user_id):
     if not user:
         raise Exception('Invalid user id.')
 
-    result = user_service.delete_user(user)
+    result = user_service.hard_delete_user(user)
     return jsonify_response(success=result)

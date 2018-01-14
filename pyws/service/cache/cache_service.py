@@ -11,8 +11,14 @@ def verify_auth_token(token):
     return False
 
 
-def delete_cached_auth_keys(token):
+def delete_cached_auth_keys_by_token(token):
     user_id = _redis_store.hgetall(TOKEN_USER_KEY.format(token=token))['id']
+    _redis_store.expire(USER_TOKEN_KEY.format(user_id=user_id))
+    _redis_store.expire(TOKEN_USER_KEY.format(token=token))
+
+
+def delete_cached_auth_keys_by_user_id(user_id):
+    token = _redis_store.get(USER_TOKEN_KEY.format(user_id=user_id))
     _redis_store.expire(USER_TOKEN_KEY.format(user_id=user_id))
     _redis_store.expire(TOKEN_USER_KEY.format(token=token))
 

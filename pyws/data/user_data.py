@@ -45,5 +45,21 @@ class UserData(BaseData):
 
         return True
 
+    def hard_delete(self, user):
+        """
+        Hard delete user from db
+
+        :param user: user model
+        :return:
+        """
+        db.session.delete(user)
+        db.session.commit()
+
     def get_user_by_user_name(self, user_name):
+        """
+        Get a user model by user_name
+
+        :param user_name:
+        :return:
+        """
         return db.session.query(self.model_class).filter_by(user_name=user_name).first()
