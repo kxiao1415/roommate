@@ -33,6 +33,7 @@ class UserModel(db.Model, BaseModel):
     _private_columns = ['id',
                         'created',
                         'age_last_modified',
+                        'profile_photo',
                         'deleted']
 
     # columns that should not be return in the api

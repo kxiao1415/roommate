@@ -68,7 +68,9 @@ def get_user(user_id):
                 "user_name": "test_user_name",
                 "estimated_age": null,
                 "phone": null,
-                "first_name": "test_first_name"
+                "first_name": "test_first_name",
+                "deleted": null,
+                "profile_photo": "example/path/to/photo.png"
             }
         }
 
@@ -118,7 +120,9 @@ def create_user():
                 "user_name": "test_user_name",
                 "estimated_age": null,
                 "phone": null,
-                "first_name": "test_first_name"
+                "first_name": "test_first_name",
+                "deleted": null,
+                "profile_photo": "example/path/to/photo.png"
             }
         }
 
@@ -168,7 +172,9 @@ def update_user(user_id):
                 "user_name": "test_user_name",
                 "estimated_age": null,
                 "phone": null,
-                "first_name": "test_first_name"
+                "first_name": "test_first_name",
+                "deleted": null,
+                "profile_photo": "example/path/to/photo.png"
             }
         }
 
