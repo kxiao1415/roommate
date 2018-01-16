@@ -1,13 +1,13 @@
-def filter_private_columns(model_class, info):
+def filter_columns(columns, info):
     """
-    Filter out private columns of given model class from info
+    Filter out columns from info
 
-    :param model_class: model class
+    :param columns: model class
     :param info: dictionary
     :return: filtered info
     """
 
-    for key in model_class.private_columns():
+    for key in columns:
         if key in info:
             del info[key]
     return info

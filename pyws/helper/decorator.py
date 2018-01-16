@@ -43,6 +43,9 @@ def validate_json(*expected_args):
                 raise Exception(u'Payload must be a valid json. '
                                 u'Tip: Is Content-Type set to application/json?')
 
+            if not isinstance(json, dict):
+                raise Exception(u'Payload must be a valid hash.')
+
             missing_fields = []
             for expected_arg in expected_args:
                 if expected_arg not in json:
@@ -208,7 +211,7 @@ def auth_required(*resources):
                 arg_value = function_arg_value_dict[resource]
                 # check to see if the caller has access to the resources
                 if not resource_validator_map[resource](arg_value):
-                    raise Exception(u'User is not allowed to access this resource id {0}'.format(arg_value))
+                    raise Exception(u'User is not allowed to access this resource id {0}.'.format(arg_value))
 
             return f(*args, **kwargs)
         return decorated_function

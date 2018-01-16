@@ -128,7 +128,7 @@ def create_user():
 
     """
 
-    clean_user_info = data_helper.filter_private_columns(UserModel, request.json)
+    clean_user_info = data_helper.filter_columns(UserModel.private_columns(), request.json)
     new_user = user_service.create_user(clean_user_info)
 
     return jsonify_response(user=new_user.to_json(filter_hidden_columns=True))
@@ -185,10 +185,13 @@ def update_user(user_id):
     if not user:
         raise Exception('Invalid user id.')
 
-    clean_user_info = data_helper.filter_private_columns(UserModel, request.json)
+
+    clean_user_info = data_helper.filter_columns(UserModel.private_columns() + UserModel.hidden_columns(),
+                                                 request.json)
+
     updated_user = user_service.update_user(user, clean_user_info)
 
-    return jsonify_response(updated_user=updated_user.to_json(filter_hidden_columns=True))
+    return jsonify_response(user=updated_user.to_json(filter_hidden_columns=True))
 
 
 @latest.route('/users/<user_id>/deleted', methods=['PUT'])
