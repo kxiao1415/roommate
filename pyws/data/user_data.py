@@ -1,8 +1,10 @@
+from flask import g
 from datetime import datetime
 
 from pyws.data.base_data import db
 from pyws.data.base_data import BaseData
 from pyws.data.model.user_model import UserModel
+from pyws.cache import cache_helper
 
 
 class UserData(BaseData):
@@ -25,6 +27,11 @@ class UserData(BaseData):
 
                 if key == 'estimated_age':
                     setattr(user, 'age_last_modified', datetime.utcnow())
+
+                if key == 'deleted' and info[key] == True:
+                    # delete the cached session key associated with this user
+                    cache_helper.delete_cached_auth_keys_by_token(g.token)
+                    setattr(user, 'last_deleted_time', datetime.utcnow())
 
         db.session.add(user)
         db.session.commit()

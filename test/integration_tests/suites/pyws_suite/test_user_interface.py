@@ -60,6 +60,8 @@ class UserTestSuite(unittest.TestCase):
 
         response = self.user_api.authenticate_user(user_info)
         self.assertIn('error', response)
+        self.assertEqual(response['error']['msg'],
+                         'No user matching the user_name and password combination.')
 
         # case 2. wrong user_name
         user_info = {
@@ -69,27 +71,16 @@ class UserTestSuite(unittest.TestCase):
 
         response = self.user_api.authenticate_user(user_info)
         self.assertIn('error', response)
+        self.assertEqual(response['error']['msg'],
+                         'No user matching the user_name and password combination.')
 
-
-        # case 3. no password
-        user_info = {
-            'user_name': 'test'
-        }
+        # case 3. no info
+        user_info = {}
 
         response = self.user_api.authenticate_user(user_info)
         self.assertIn('error', response)
         self.assertEqual(response['error']['msg'],
-                         'Required fields [ password ] are missing from json payload.')
-
-        # case 4. no user_name
-        user_info = {
-            'password': 'abcxyz'
-        }
-
-        response = self.user_api.authenticate_user(user_info)
-        self.assertIn('error', response)
-        self.assertEqual(response['error']['msg'],
-                         'Required fields [ user_name ] are missing from json payload.')
+                         'Required fields [ user_name, password ] are missing from json payload.')
 
     def test_create_user_pos(self):
         """test successfully creating a user"""
@@ -106,10 +97,10 @@ class UserTestSuite(unittest.TestCase):
 
             # private fields
             'id': -1,
-            'created': one_hour_ago,
+            'created_time': one_hour_ago,
             'age_last_modified': one_hour_ago,
             'profile_photo': 'test/path/photo.png',
-            'deleted': one_hour_ago
+            'last_deleted_time': one_hour_ago
         }
 
         response = self.user_api.create_user(user_info)
@@ -122,10 +113,10 @@ class UserTestSuite(unittest.TestCase):
 
             # make sure private fields are properly handled
             self.assertNotEqual(response['user']['id'], -1)
-            self.assertNotEqual(response['user']['created'], one_hour_ago)
+            self.assertNotEqual(response['user']['created_time'], one_hour_ago)
             self.assertNotEqual(response['user']['age_last_modified'], one_hour_ago)
             self.assertEqual(response['user']['profile_photo'], None)
-            self.assertEqual(response['user']['deleted'], None)
+            self.assertEqual(response['user']['last_deleted_time'], None)
 
         finally:
             # hard delete this user
@@ -182,38 +173,85 @@ class UserTestSuite(unittest.TestCase):
             'last_name': 'update_test_last_name',
             'email': 'update_test@email.com',
             'estimated_age': 30,
+            'password': 'new password',
 
             # private columns
             'id': -1,
-            'created': one_hour_ago,
+            'created_time': one_hour_ago,
             'age_last_modified': one_hour_ago,
             'profile_photo': 'test/path/photo.png',
-            'deleted': one_hour_ago
+            'last_deleted_time': one_hour_ago
         }
 
         update_response = self.user_api.update_user(create_response['user']['id'],
-                                             update_user_info,
-                                             auth_response['token'])
+                                                    update_user_info,
+                                                    auth_response['token'])
 
         try:
-            self.assertIn('user', update_response)
+            self.assertIn('success', update_response)
 
-            # make user password is not in the response
-            self.assertNotIn('password', update_response['user'])
+            # make sure the new password is saved by authenticating
+            sec_auth_response = self.user_api.authenticate_user(update_user_info)
+            self.assertIn('token', sec_auth_response)
+            self.assertEqual(sec_auth_response['token'], auth_response['token'])
+
+            # get the new user info
+            get_response = self.user_api.get_user(create_response['user']['id'])
 
             # make sure public fields are updated
             public_fields = ['user_name', 'first_name', 'last_name', 'email', 'estimated_age']
             for field in public_fields:
-                self.assertEqual(update_user_info[field], update_response['user'][field])
+                self.assertEqual(update_user_info[field], get_response['user'][field])
 
             # make sure non-update-able private fields are not updated
-            non_update_able_private_fields = ['id', 'created', 'profile_photo', 'deleted']
+            non_update_able_private_fields = ['id', 'created_time', 'profile_photo', 'last_deleted_time']
             for field in non_update_able_private_fields:
-                self.assertEqual(update_response['user'][field], create_response['user'][field])
+                self.assertEqual(get_response['user'][field], create_response['user'][field])
 
             # make sure private field 'age_last_modified' is updated
-            self.assertNotEqual(update_response['user']['age_last_modified'],
+            self.assertNotEqual(get_response['user']['age_last_modified'],
                                 create_response['user']['age_last_modified'])
+
+        finally:
+            # hard delete this user
+            response = self.user_api.hard_delete_user(create_response['user']['id'], self.privileged_token)
+            self.assertIn('success', response)
+
+    def test_update_user_deleted_pos(self):
+        """test successfully delete a user"""
+
+        # create a user
+        user_info = {
+            'user_name': 'integration_test',
+            'first_name': 'integration_test_first_name',
+            'last_name': 'integration_test_last_name',
+            'email': 'integration_test@email.com',
+            'password': 'abcxyz'
+        }
+
+        create_response = self.user_api.create_user(user_info)
+
+        # authenticate
+        auth_response = self.user_api.authenticate_user(user_info)
+
+        update_user_info = {
+            'deleted': True
+        }
+
+        update_response = self.user_api.update_user(create_response['user']['id'],
+                                                    update_user_info,
+                                                    auth_response['token'])
+
+        try:
+            self.assertIn('success', update_response)
+
+            # get the new user info
+            get_response = self.user_api.get_user(create_response['user']['id'])
+            self.assertIn('error', get_response)
+
+            # authenticate the user
+            auth_response = self.user_api.authenticate_user(user_info)
+            self.assertIn('error', auth_response)
 
         finally:
             # hard delete this user

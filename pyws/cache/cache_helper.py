@@ -1,6 +1,6 @@
-from pyws.service.cache.redis_connector import RedisStore
-from pyws.service.cache.cache_constants import DEFAULT_TIMEOUT_IN_SECS
-from pyws.service.cache.cache_constants import USER_TOKEN_KEY, TOKEN_USER_KEY
+from pyws.cache.redis_connector import RedisStore
+from pyws.cache.cache_constants import DEFAULT_TIMEOUT_IN_SECS
+from pyws.cache.cache_constants import USER_TOKEN_KEY, TOKEN_USER_KEY
 
 _redis_store = RedisStore()
 

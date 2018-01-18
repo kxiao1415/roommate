@@ -56,7 +56,7 @@ def get_user(user_id):
             "user": {
                 "last_name": "test_last_name",
                 "education": null,
-                "created": "2017-12-17T03:59:16.782856",
+                "created_time": "2017-12-17T03:59:16.782856",
                 "budget_min": null,
                 "id": 1,
                 "email": "test@gmail.com",
@@ -69,7 +69,8 @@ def get_user(user_id):
                 "estimated_age": null,
                 "phone": null,
                 "first_name": "test_first_name",
-                "deleted": null,
+                "deleted": false,
+                "last_deleted_time": "2017-12-17T03:59:16.782865",
                 "profile_photo": "example/path/to/photo.png"
             }
         }
@@ -108,7 +109,7 @@ def create_user():
             "user": {
                 "last_name": "test_last_name",
                 "education": null,
-                "created": "2017-12-17T03:59:16.782856",
+                "created_time": "2017-12-17T03:59:16.782856",
                 "budget_min": null,
                 "id": 1,
                 "email": "test@gmail.com",
@@ -121,7 +122,8 @@ def create_user():
                 "estimated_age": null,
                 "phone": null,
                 "first_name": "test_first_name",
-                "deleted": null,
+                "deleted": false,
+                "last_deleted_time": "2017-12-17T03:59:16.782865",
                 "profile_photo": "example/path/to/photo.png"
             }
         }
@@ -157,59 +159,6 @@ def update_user(user_id):
     **sample response**
 
         {
-            "user": {
-                "last_name": "test_last_name",
-                "education": null,
-                "created": "2017-12-17T03:59:16.782856",
-                "budget_min": null,
-                "id": 1,
-                "email": "test@gmail.com",
-                "short_description": null,
-                "gender": null,
-                "long_description": null,
-                "age_last_modified": "2017-12-17T03:59:16.782865",
-                "budget_max": null,
-                "user_name": "test_user_name",
-                "estimated_age": null,
-                "phone": null,
-                "first_name": "test_first_name",
-                "deleted": null,
-                "profile_photo": "example/path/to/photo.png"
-            }
-        }
-
-    """
-
-    user = user_service.get_user_by_user_id(user_id)
-
-    if not user:
-        raise Exception('Invalid user id.')
-
-
-    clean_user_info = data_helper.filter_columns(UserModel.private_columns() + UserModel.hidden_columns(),
-                                                 request.json)
-
-    updated_user = user_service.update_user(user, clean_user_info)
-
-    return jsonify_response(user=updated_user.to_json(filter_hidden_columns=True))
-
-
-@latest.route('/users/<user_id>/deleted', methods=['PUT'])
-@limit(requests=30, window=60, by="ip")
-@auth_required('user_id')
-def delete_user(user_id):
-    """
-    Mark a user as deleted by user id
-
-    **sample request**
-
-        curl -X PUT 'http://localhost:5000/users/1/deleted'
-        --header "Content-Type: application/json"
-        --header "X-TOKEN: MDhjOTliMzg1Y2Q2NDA5ZTgwNzg4NGY3NjM1NTQ0M2U"
-
-    **sample response**
-
-        {
             "success": true
         }
 
@@ -220,8 +169,12 @@ def delete_user(user_id):
     if not user:
         raise Exception('Invalid user id.')
 
-    result = user_service.delete_user(user)
-    return jsonify_response(success=result)
+
+    clean_user_info = data_helper.filter_columns(UserModel.private_columns(), request.json)
+
+    user_service.update_user(user, clean_user_info)
+
+    return jsonify_response(success=True)
 
 
 @latest.route('/users/<user_id>', methods=['DELETE'])
@@ -248,7 +201,7 @@ def hard_delete_user(user_id):
 
     """
 
-    user = user_service.get_user_by_user_id(user_id)
+    user = user_service.get_user_by_user_id(user_id, include_deleted=True)
 
     if not user:
         raise Exception('Invalid user id.')

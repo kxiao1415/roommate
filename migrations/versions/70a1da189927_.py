@@ -1,13 +1,13 @@
 """empty message
 
-Revision ID: ad04c5fe8f39
+Revision ID: 70a1da189927
 Revises: None
-Create Date: 2018-01-01 17:22:11.245261
+Create Date: 2018-01-17 01:49:08.717201
 
 """
 
 # revision identifiers, used by Alembic.
-revision = 'ad04c5fe8f39'
+revision = '70a1da189927'
 down_revision = None
 
 from alembic import op
@@ -24,7 +24,7 @@ def upgrade():
     sa.Column('first_name', sa.Unicode(length=64), nullable=False),
     sa.Column('last_name', sa.Unicode(length=64), nullable=False),
     sa.Column('email', EncryptedType(sa.Unicode(64), Config.SECRET_KEY), nullable=False),
-    sa.Column('phone', EncryptedType(sa.Unicode(64), Config.SECRET_KEY), nullable=True),
+    sa.Column('phone', EncryptedType(sa.Integer, Config.SECRET_KEY), nullable=True),
     sa.Column('gender', sa.Enum('M', 'F', name='gender_enum'), nullable=True),
     sa.Column('short_description', sa.Unicode(length=140), nullable=True),
     sa.Column('long_description', sa.UnicodeText(), nullable=True),
@@ -32,11 +32,12 @@ def upgrade():
     sa.Column('estimated_age', sa.Integer(), nullable=True),
     sa.Column('budget_max', sa.Integer(), nullable=True),
     sa.Column('budget_min', sa.Integer(), nullable=True),
-    sa.Column('created', sa.DateTime(), nullable=True),
+    sa.Column('created_time', sa.DateTime(), nullable=True),
     sa.Column('age_last_modified', sa.DateTime(), nullable=True),
-    sa.Column('deleted', sa.DateTime(), nullable=True),
+    sa.Column('deleted', sa.Boolean(), nullable=False),
+    sa.Column('last_deleted_time', sa.DateTime(), nullable=True),
     sa.Column('password', EncryptedType(sa.Unicode(64), Config.SECRET_KEY), nullable=False),
-    sa.Column('profile_picture', sa.Unicode(length=140), nullable=True),
+    sa.Column('profile_photo', sa.Unicode(length=140), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_user_email'), 'user', ['email'], unique=True)

@@ -1,7 +1,7 @@
 import redis
 from config import Config
 
-from pyws.service.cache.cache_constants import DEFAULT_TIMEOUT_IN_SECS
+from pyws.cache.cache_constants import DEFAULT_TIMEOUT_IN_SECS
 
 
 class RedisStore(object):
@@ -25,7 +25,6 @@ class RedisStore(object):
 
         if timeout_in_sec is not None:
             self.conn.expire(key, timeout_in_sec)
-
 
     def hgetall(self, key):
         """
@@ -62,7 +61,6 @@ class RedisStore(object):
         else:
             self.conn.setex(key, timeout_in_sec, value)
 
-
     def get(self, key):
         """
         Gets a value from the cache
@@ -71,7 +69,6 @@ class RedisStore(object):
         :return: stored value for the key
         """
         return self.conn.get(key)
-
 
     def expire(self, key, timeout_in_sec=0):
         """
@@ -83,7 +80,6 @@ class RedisStore(object):
         """
         self.conn.expire(key, timeout_in_sec)
 
-
     def ttl(self, key):
         """
         Gets time-to-live for a key
@@ -92,7 +88,6 @@ class RedisStore(object):
         :return:
         """
         self.conn.ttl(key)
-
 
     def incr(self, key, num):
         """
@@ -103,7 +98,6 @@ class RedisStore(object):
         :return:
         """
         self.conn.incr(key, num)
-
 
     def exists(self, key):
         """

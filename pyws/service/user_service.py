@@ -1,8 +1,6 @@
-from flask import g
-
 from pyws.data.user_data import UserData
 from pyws.helper import data_helper
-from pyws.service.cache import cache_service
+from pyws.cache import cache_helper
 
 _user_data = UserData()
 
@@ -29,13 +27,7 @@ def update_user(user, user_info):
     return _user_data.update(user, user_info)
 
 
-def delete_user(user):
-    # delete the cached session key associated with this user
-    cache_service.delete_cached_auth_keys_by_token(g.token)
-
-    return _user_data.delete(user)
-
 def hard_delete_user(user):
     # hard delete the user from the db
-    cache_service.delete_cached_auth_keys_by_user_id(user.id)
+    cache_helper.delete_cached_auth_keys_by_user_id(user.id)
     return _user_data.hard_delete(user)

@@ -57,4 +57,5 @@ class BaseData(object):
 
         db.session.delete(model)
         db.session.commit()
+
         return True

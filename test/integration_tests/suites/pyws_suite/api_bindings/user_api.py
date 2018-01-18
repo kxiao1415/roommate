@@ -21,10 +21,6 @@ class UserApi(object):
         data = network_helpers.http_request('/users/{0}'.format(user_id), token=token, data=user_info, verb='PUT')
         return json.loads(data)
 
-    def delete_user(self, user_id, token):
-        data = network_helpers.http_request('/users/{0}/deleted'.format(user_id), token=token, verb='PUT')
-        return json.loads(data)
-
     def hard_delete_user(self, user_id, token):
         data = network_helpers.http_request('/users/{0}'.format(user_id), token=token, verb='DELETE')
         return json.loads(data)

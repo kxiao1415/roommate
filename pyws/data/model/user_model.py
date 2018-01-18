@@ -23,18 +23,19 @@ class UserModel(db.Model, BaseModel):
     estimated_age = db.Column(db.Integer)
     budget_max = db.Column(db.Integer)
     budget_min = db.Column(db.Integer)
-    created = db.Column(db.DateTime, default=datetime.utcnow)
+    created_time = db.Column(db.DateTime, default=datetime.utcnow)
     age_last_modified = db.Column(db.DateTime, default=datetime.utcnow)
-    deleted = db.Column(db.DateTime)
+    deleted = db.Column(db.Boolean, unique=False, nullable=False, default=False)
+    last_deleted_time = db.Column(db.DateTime)
     password = db.Column(EncryptedType(db.Unicode(64), Config.SECRET_KEY), nullable=False)
     profile_photo = db.Column(db.Unicode(140))
 
     # columns that should not be updated manually
     _private_columns = ['id',
-                        'created',
+                        'created_time',
                         'age_last_modified',
                         'profile_photo',
-                        'deleted']
+                        'last_deleted_time']
 
     # columns that should not be return in the api
     _hidden_columns = ['password']
