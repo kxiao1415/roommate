@@ -23,8 +23,8 @@ class UserApi(object):
         files = {"file": open(file_path, 'rb')}
 
         return network_helpers.post_file_to_url('/users/{0}/photos/'.format(user_id),
-                                                    token,
-                                                    files=files)
+                                                token,
+                                                files=files)
 
     def delete_user_photo(self, user_id, token):
         return network_helpers.http_request('/users/{0}/photos'.format(user_id), token=token, verb='DELETE')
