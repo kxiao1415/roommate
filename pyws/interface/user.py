@@ -10,7 +10,7 @@ from pyws.data.model.user_model import UserModel
 
 @latest.route('/users/authenticate/', methods=['POST'])
 @validate_json('user_name', 'password')
-@limit(requests=30, window=60, by="ip")
+@limit(requests=100, window=60, by="ip")
 def authenticate_user():
     """
     Authenticate user
@@ -41,7 +41,7 @@ def authenticate_user():
 
 
 @latest.route('/users/<user_id>', methods=['GET'])
-@limit(requests=30, window=60, by="ip")
+@limit(requests=100, window=60, by="ip")
 def get_user(user_id):
     """
     Get a user by user id
@@ -87,7 +87,7 @@ def get_user(user_id):
 
 @latest.route('/users/', methods=['POST'])
 @validate_json(*UserModel.required_columns())
-@limit(requests=30, window=60, by="ip")
+@limit(requests=100, window=60, by="ip")
 def create_user():
     """
     Create a new user
@@ -138,7 +138,7 @@ def create_user():
 
 @latest.route('/users/<user_id>', methods=['PUT'])
 @validate_json()
-@limit(requests=30, window=60, by="ip")
+@limit(requests=100, window=60, by="ip")
 @auth_required('user_id')
 def update_user(user_id):
     """

@@ -9,14 +9,18 @@ HOST = 'localhost'
 PORT = 5000
 
 
-def post_file_to_url(token, url, field_name, path, headers=None, data=None):
+def post_file_to_url(interface, token, files, headers=None, data=None):
     if headers is None:
         headers = {'X-TOKEN': token}
 
-    files = {field_name: open(path, 'rb')}
+    if interface[0] == '/':
+        interface = interface[1:]
+
+    url = 'http://{0}:{1}/{2}'.format(HOST, PORT, interface)
+
     response = requests.post(url, files=files, verify=False, headers=headers, data=data)
 
-    return response
+    return response.json()
 
 
 def http_request(interface, token=None, data='', headers=None, verb="POST"):
@@ -50,7 +54,7 @@ def http_request(interface, token=None, data='', headers=None, verb="POST"):
         print('Caught Exception!\n {0}'.format(err_msg))
 
     else:
-        return response.read()
+        return json.loads(response.read())
 
 
 def _get_http_client(host, port):

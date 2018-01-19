@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import unittest
 from datetime import datetime, timedelta
 
@@ -20,7 +20,7 @@ class UserTestSuite(unittest.TestCase):
 
     test_user_id = None
     test_user_token = None
-    privileged_token = TestConfig.privileged_token
+    privileged_token = TestConfig.PRIVILEGED_TOKEN
 
     @classmethod
     def setUpClass(cls):
@@ -38,6 +38,18 @@ class UserTestSuite(unittest.TestCase):
         response = cls.user_api.hard_delete_user(cls.test_user_id, cls.privileged_token)
         if 'success' not in response:
             raise Exception('The test user was not deleted.')
+
+    def test_get_user_pos(self):
+        """test successfully get a user"""
+
+        response = self.user_api.get_user(self.test_user_id)
+        self.assertIn('user', response)
+
+    def test_get_user_non_existing_user_neg(self):
+        """test get a user that does not exist"""
+
+        response = self.user_api.get_user(-1)
+        self.assertIn('error', response)
 
     def test_authenticate_user_pos(self):
         """test successfully authenticate the test user"""
@@ -272,6 +284,31 @@ class UserTestSuite(unittest.TestCase):
         self.assertIn('error', response)
         self.assertEqual(response['error']['msg'],
                          'User is not allowed to access this resource id -1.')
+
+    def test_upload_and_delete_user_photo_pos(self):
+        """test successfully upload, then delete a user photo"""
+
+        # upload a user photo
+        response = self.user_api.upload_user_photo(self.test_user_id,
+                                                   os.path.join(TestConfig.IMAGES_DIR, 'test.png'),
+                                                   self.test_user_token)
+        self.assertIn('success', response)
+
+        # make sure user info is updated
+        get_response = self.user_api.get_user(self.test_user_id)
+        self.assertIn('user', get_response)
+        self.assertEqual(get_response['user']['profile_photo'],
+                         'user_{0}/photos/test.png'.format(self.test_user_id))
+
+        # delete user photo
+        response = self.user_api.delete_user_photo(self.test_user_id,
+                                                   self.test_user_token)
+        self.assertIn('success', response)
+
+        # make sure user info is updated
+        get_response = self.user_api.get_user(self.test_user_id)
+        self.assertIn('user', get_response)
+        self.assertEqual(get_response['user']['profile_photo'], None)
 
 
 if __name__ == '__main__':

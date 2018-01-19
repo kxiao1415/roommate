@@ -11,7 +11,7 @@ from pyws.helper.decorator import limit, validate_file, auth_required
 
 @latest.route('/users/<user_id>/photos/', methods=['POST', 'PUT'])
 @validate_file(allowed_extensions=['.png', '.jpg', '.jpeg', '.gif'])
-@limit(requests=30, window=60, by="ip")
+@limit(requests=100, window=60, by="ip")
 @auth_required('user_id')
 def upload_user_photo(user_id):
     """
@@ -51,7 +51,7 @@ def upload_user_photo(user_id):
 
 
 @latest.route('/users/<user_id>/photos/', methods=['DELETE'])
-@limit(requests=30, window=60, by="ip")
+@limit(requests=100, window=60, by="ip")
 @auth_required('user_id')
 def delete_user_photo(user_id):
     """
