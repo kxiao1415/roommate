@@ -2,6 +2,9 @@
 config.py
 test_config.py
 
+# ignore sandbox file
+db_sandbox.py
+
 # ignore IDE folder
 .idea/
 

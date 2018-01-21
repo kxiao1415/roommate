@@ -1,17 +1,18 @@
 """empty message
 
-Revision ID: 43fa806a4f8b
+Revision ID: 22eab05002c0
 Revises: None
-Create Date: 2018-01-21 01:56:46.100097
+Create Date: 2018-01-21 09:55:12.777123
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '43fa806a4f8b'
+revision = '22eab05002c0'
 down_revision = None
 
 from alembic import op
 import sqlalchemy as sa
+
 from config import Config
 from sqlalchemy_utils import EncryptedType
 
@@ -24,7 +25,7 @@ def upgrade():
     sa.Column('first_name', sa.Unicode(length=64), nullable=False),
     sa.Column('last_name', sa.Unicode(length=64), nullable=False),
     sa.Column('email', EncryptedType(sa.Unicode(length=64), Config.SECRET_KEY), nullable=False),
-    sa.Column('phone', EncryptedType(sa.Unicode(length=64), Config.SECRET_KEY), nullable=True),
+    sa.Column('phone', EncryptedType(sa.Integer(), Config.SECRET_KEY), nullable=True),
     sa.Column('gender', sa.Enum('M', 'F', name='gender_enum'), nullable=True),
     sa.Column('short_description', sa.Unicode(length=140), nullable=True),
     sa.Column('long_description', sa.UnicodeText(), nullable=True),
@@ -51,7 +52,8 @@ def upgrade():
     sa.Column('household_size', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('user_id')
     )
     # ### end Alembic commands ###
 
