@@ -168,7 +168,7 @@ class UserTestSuite(unittest.TestCase):
     def test_create_user_with_not_allowed_fields_neg(self):
         """test create user with not allowed fields"""
 
-        # Field 'test' and 'pref_test' are not allowed
+        # Fields 'test' and 'pref_test' are not allowed
         user_info = {
             'test': 'not allowed',
             'user_name': 'integration_test',
@@ -186,7 +186,7 @@ class UserTestSuite(unittest.TestCase):
         response = self.user_api.create_user(user_info)
         self.assertIn('error', response)
         self.assertEqual(response['error']['msg'],
-                         "These fields {'preference': ['pref_test'], 'user': ['test']} "
+                         "These fields {'user': ['test'], 'preference': ['pref_test']} "
                          "are not allowed in the json payload.")
 
     def test_create_user_without_valid_json_payload_neg(self):
