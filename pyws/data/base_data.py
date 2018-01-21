@@ -15,19 +15,18 @@ class BaseData(object):
 
         return db.session.query(self.model_class).get(id)
 
-    def create(self, info):
+    def create(self, model):
         """
-        Create a new model with the given info
+        Create the new model
 
-        :param info: dictionary
+        :param model: new model to be created
         :return: newly created model
         """
 
-        new_model = self.model_class(info)
-        db.session.add(new_model)
+        db.session.add(model)
         db.session.commit()
 
-        return new_model
+        return model.id
 
     def update(self, model, info):
         """

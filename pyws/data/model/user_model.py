@@ -4,7 +4,7 @@ from sqlalchemy_utils import EncryptedType
 from config import Config
 from pyws.data.base_data import db
 from pyws.data.model.base_model import BaseModel
-
+from pyws.data.model.preference_model import PreferenceModel
 
 class UserModel(db.Model, BaseModel):
 
@@ -19,16 +19,19 @@ class UserModel(db.Model, BaseModel):
     gender = db.Column(db.Enum('M', 'F', name='gender_enum'))
     short_description = db.Column(db.Unicode(140))
     long_description = db.Column(db.UnicodeText)
-    education = db.Column(db.Unicode(64))
-    estimated_age = db.Column(db.Integer)
-    budget_max = db.Column(db.Integer)
-    budget_min = db.Column(db.Integer)
+    education = db.Column(db.Enum('H', 'C', 'G', 'B', name='education_enum'))
+    age = db.Column(db.Integer)
     created_time = db.Column(db.DateTime, default=datetime.utcnow)
     age_last_modified = db.Column(db.DateTime, default=datetime.utcnow)
     deleted = db.Column(db.Boolean, unique=False, nullable=False, default=False)
     last_deleted_time = db.Column(db.DateTime)
     password = db.Column(EncryptedType(db.Unicode(64), Config.SECRET_KEY), nullable=False)
     profile_photo = db.Column(db.Unicode(140))
+    preference = db.relationship(PreferenceModel,
+                                 backref='user',
+                                 cascade='all, delete-orphan',
+                                 uselist=False,
+                                 lazy='joined')
 
     # columns that should not be updated manually
     _private_columns = ['id',
@@ -47,6 +50,9 @@ class UserModel(db.Model, BaseModel):
                          'email',
                          'password']
 
+    # map of relationships to models
+    _relationships = {'preference': PreferenceModel}
+
     def __init__(self, obj=None):
         db.Model.__init__(self, **obj)
 
@@ -61,6 +67,10 @@ class UserModel(db.Model, BaseModel):
     @classmethod
     def hidden_columns(cls):
         return cls._hidden_columns
+
+    @classmethod
+    def relationships(cls):
+        return cls._relationships
 
     def __repr__(self):
         return '<id: {0}>'.format(self.id)

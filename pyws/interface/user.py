@@ -6,6 +6,7 @@ from pyws.helper.jsonify_response import jsonify_response
 from pyws.helper.decorator import limit, validate_json, auth_required
 from pyws.helper import data_helper
 from pyws.data.model.user_model import UserModel
+from pyws.data.model.preference_model import PreferenceModel
 
 
 @latest.route('/users/authenticate/', methods=['POST'])
@@ -66,12 +67,17 @@ def get_user(user_id):
                 "age_last_modified": "2017-12-17T03:59:16.782865",
                 "budget_max": null,
                 "user_name": "test_user_name",
-                "estimated_age": null,
+                "age": null,
                 "phone": null,
                 "first_name": "test_first_name",
                 "deleted": false,
                 "last_deleted_time": "2017-12-17T03:59:16.782865",
-                "profile_photo": "example/path/to/photo.png"
+                "profile_photo": "example/path/to/photo.png",
+                "preference": {
+                    "gender": "F",
+                    "education": "H",
+                    "age": 25
+                }
             }
         }
 
@@ -83,6 +89,22 @@ def get_user(user_id):
         raise Exception('Invalid user id.')
 
     return jsonify_response(user=user.to_json(filter_hidden_columns=True))
+
+
+@latest.route('/users/', methods=['GET'])
+@limit(requests=100, window=60, by="ip")
+def get_qualified_users():
+    individual_preference = {}
+    shared_preference = {}
+
+    for filter in PreferenceModel.individual_preference_columns():
+        individual_preference[filter] = request.args.get(filter, default=None)
+
+    for filter in PreferenceModel.shared_preference_columns():
+        shared_preference[filter] = request.args.get(filter, default=None)
+
+    users = user_service.get_qualified_users(individual_preference, shared_preference)
+    return jsonify_response(users=[user.to_json(filter_hidden_columns=True) for user in users])
 
 
 @latest.route('/users/', methods=['POST'])
@@ -106,34 +128,15 @@ def create_user():
     **sample response**
 
         {
-            "user": {
-                "last_name": "test_last_name",
-                "education": null,
-                "created_time": "2017-12-17T03:59:16.782856",
-                "budget_min": null,
-                "id": 1,
-                "email": "test@gmail.com",
-                "short_description": null,
-                "gender": null,
-                "long_description": null,
-                "age_last_modified": "2017-12-17T03:59:16.782865",
-                "budget_max": null,
-                "user_name": "test_user_name",
-                "estimated_age": null,
-                "phone": null,
-                "first_name": "test_first_name",
-                "deleted": false,
-                "last_deleted_time": "2017-12-17T03:59:16.782865",
-                "profile_photo": "example/path/to/photo.png"
-            }
+            "id": 1
         }
 
     """
 
-    clean_user_info = data_helper.filter_columns(UserModel.private_columns(), request.json)
-    new_user = user_service.create_user(clean_user_info)
+    clean_user_info = data_helper.clean_info(UserModel, request.json)
+    new_user_id = user_service.create_user(clean_user_info)
 
-    return jsonify_response(user=new_user.to_json(filter_hidden_columns=True))
+    return jsonify_response(id=new_user_id)
 
 
 @latest.route('/users/<user_id>', methods=['PUT'])
@@ -153,7 +156,12 @@ def update_user(user_id):
                     "email": "test@email.com",
                     "first_name": "test_first_name",
                     "last_name": "test_last_name",
-                    "user_name": "test_user_name"
+                    "user_name": "test_user_name",
+                    "preference": {
+                                      "gender": "F",
+                                      "education": "H",
+                                      "age": 25
+                                  }
                 }'
 
     **sample response**
@@ -170,7 +178,7 @@ def update_user(user_id):
         raise Exception('Invalid user id.')
 
 
-    clean_user_info = data_helper.filter_columns(UserModel.private_columns(), request.json)
+    clean_user_info = data_helper.clean_info(UserModel, request.json)
 
     user_service.update_user(user, clean_user_info)
 

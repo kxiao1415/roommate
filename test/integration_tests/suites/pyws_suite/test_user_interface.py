@@ -184,7 +184,7 @@ class UserTestSuite(unittest.TestCase):
             'first_name': 'update_test_first_name',
             'last_name': 'update_test_last_name',
             'email': 'update_test@email.com',
-            'estimated_age': 30,
+            'age': 30,
             'password': 'new password',
 
             # private columns
@@ -211,7 +211,7 @@ class UserTestSuite(unittest.TestCase):
             get_response = self.user_api.get_user(create_response['user']['id'])
 
             # make sure public fields are updated
-            public_fields = ['user_name', 'first_name', 'last_name', 'email', 'estimated_age']
+            public_fields = ['user_name', 'first_name', 'last_name', 'email', 'age']
             for field in public_fields:
                 self.assertEqual(update_user_info[field], get_response['user'][field])
 

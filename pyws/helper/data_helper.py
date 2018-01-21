@@ -1,3 +1,24 @@
+def clean_info(model, info):
+    """
+    recursively remove private columns of the model from the info
+
+    :param model:
+    :param info: dictionary
+    :return:
+    """
+    if '_relationships' in dir(model):
+        for relationship in model.relationships():
+            if info[relationship]:
+                if isinstance(info[relationship], list):
+                    for i in info[relationship]:
+                        clean_info(model[relationship], i)
+                else:
+                    clean_info(model[relationship], info[relationship])
+
+    if '_private_columns' in dir(model):
+        filter_columns(model.private_columns(), info)
+
+
 def filter_columns(columns, info):
     """
     Filter out columns from info

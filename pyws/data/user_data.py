@@ -4,6 +4,7 @@ from datetime import datetime
 from pyws.data.base_data import db
 from pyws.data.base_data import BaseData
 from pyws.data.model.user_model import UserModel
+from pyws.data.model.preference_model import PreferenceModel
 from pyws.cache import cache_helper
 
 
@@ -25,13 +26,23 @@ class UserData(BaseData):
             if key in user.__table__.columns.keys():
                 setattr(user, key, info[key])
 
-                if key == 'estimated_age':
+                if key == 'age':
                     setattr(user, 'age_last_modified', datetime.utcnow())
 
                 if key == 'deleted' and info[key] == True:
                     # delete the cached session key associated with this user
                     cache_helper.delete_cached_auth_keys_by_token(g.token)
                     setattr(user, 'last_deleted_time', datetime.utcnow())
+
+        # update user preference
+        if 'preference' in info:
+            if user.preference:
+                for key in info['preference'].keys():
+                    if key in user.preference.__table__.columns.keys():
+                        setattr(user.preference, key, info['preference'][key])
+            else:
+                pref = PreferenceModel(info['preference'])
+                user.preference = pref
 
         db.session.add(user)
         db.session.commit()
@@ -69,4 +80,24 @@ class UserData(BaseData):
         :param user_name:
         :return:
         """
-        return db.session.query(self.model_class).filter_by(user_name=user_name).first()
+        return db.session.query(UserModel).filter_by(user_name=user_name).first()
+
+    def get_qualified_users(self, individual_preference, shared_preference):
+        """
+        Get a list of qualified users
+
+        :param individual_preference:
+        :param shared_preference:
+        :return:
+        """
+        query = db.session.query(UserModel)
+
+        for attr, value in individual_preference.items():
+            query = query.filter(getattr(UserModel, attr)==value)
+
+        if shared_preference:
+            query.join(UserModel.preference)
+            for attr, value in shared_preference.items():
+                query = query.filter(getattr(PreferenceModel, attr)==value)
+
+        return query.all()

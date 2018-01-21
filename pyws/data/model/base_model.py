@@ -14,14 +14,25 @@ class BaseModel(object):
 
         jsonified_obj = {}
         for key in self.__table__.columns.keys():
-            if isinstance(self.__dict__[key], datetime):
-                jsonified_obj[key] = self.__dict__[key].isoformat()
+            if isinstance(getattr(self, key), datetime):
+                jsonified_obj[key] = getattr(self, key).isoformat()
             else:
-                jsonified_obj[key] = self.__dict__[key]
+                jsonified_obj[key] = getattr(self, key)
 
-        if filter_hidden_columns:
-            hidden_columns = self.hidden_columns()
-            for hidden_column in hidden_columns:
-                del jsonified_obj[hidden_column]
+        if '_relationships' in dir(self):
+            for key in self.relationships().keys():
+                if getattr(self, key):
+                    if isinstance(getattr(self, key), list):
+                        jsonified_obj[key] = []
+                        for model in getattr(self, key):
+                            jsonified_obj[key].append(self.to_json(model, filter_hidden_columns))
+                    else:
+                        jsonified_obj[key] = getattr(self, key).to_json(filter_hidden_columns)
+
+        if '_hidden_columns' in dir(self):
+            if filter_hidden_columns:
+                hidden_columns = self.hidden_columns()
+                for hidden_column in hidden_columns:
+                    del jsonified_obj[hidden_column]
 
         return jsonified_obj
