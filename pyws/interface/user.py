@@ -10,7 +10,7 @@ from pyws.data.model.preference_model import PreferenceModel
 
 
 @latest.route('/users/authenticate/', methods=['POST'])
-@validate_json('user_name', 'password')
+@validate_json(required_fields=['user_name', 'password'])
 @limit(requests=100, window=60, by="ip")
 def authenticate_user():
     """
@@ -108,7 +108,8 @@ def get_qualified_users():
 
 
 @latest.route('/users/', methods=['POST'])
-@validate_json(*UserModel.required_columns())
+@validate_json(required_fields=UserModel.required_columns(),
+               allowed_model=UserModel)
 @limit(requests=100, window=60, by="ip")
 def create_user():
     """
@@ -122,25 +123,54 @@ def create_user():
                     "email": "test@email.com",
                     "first_name": "test_first_name",
                     "last_name": "test_last_name",
-                    "user_name": "test_user_name"
+                    "user_name": "test_user_name",
+                    "preference": {
+                                      "gender": "F",
+                                      "education": "H",
+                                      "age": 25
+                                  }
                 }'
 
     **sample response**
 
         {
-            "id": 1
+            "user": {
+                "last_name": "test_last_name",
+                "education": null,
+                "created_time": "2017-12-17T03:59:16.782856",
+                "budget_min": null,
+                "id": 1,
+                "email": "test@gmail.com",
+                "short_description": null,
+                "gender": null,
+                "long_description": null,
+                "age_last_modified": "2017-12-17T03:59:16.782865",
+                "budget_max": null,
+                "user_name": "test_user_name",
+                "age": null,
+                "phone": null,
+                "first_name": "test_first_name",
+                "deleted": false,
+                "last_deleted_time": "2017-12-17T03:59:16.782865",
+                "profile_photo": "example/path/to/photo.png",
+                "preference": {
+                    "gender": "F",
+                    "education": "H",
+                    "age": 25
+                }
+            }
         }
 
     """
+    user_info = request.json
+    data_helper.clean_info(UserModel, user_info)
+    new_user = user_service.create_user(user_info)
 
-    clean_user_info = data_helper.clean_info(UserModel, request.json)
-    new_user_id = user_service.create_user(clean_user_info)
-
-    return jsonify_response(id=new_user_id)
+    return jsonify_response(user=new_user.to_json(filter_hidden_columns=True))
 
 
 @latest.route('/users/<user_id>', methods=['PUT'])
-@validate_json()
+@validate_json(allowed_model=UserModel)
 @limit(requests=100, window=60, by="ip")
 @auth_required('user_id')
 def update_user(user_id):
@@ -177,10 +207,10 @@ def update_user(user_id):
     if not user:
         raise Exception('Invalid user id.')
 
+    user_info = request.json
+    data_helper.clean_info(UserModel, user_info)
 
-    clean_user_info = data_helper.clean_info(UserModel, request.json)
-
-    user_service.update_user(user, clean_user_info)
+    user_service.update_user(user, user_info)
 
     return jsonify_response(success=True)
 

@@ -6,14 +6,17 @@ def clean_info(model, info):
     :param info: dictionary
     :return:
     """
+    if not isinstance(info, dict):
+        raise Exception(u"'{0}' is not a invalid hash.".format(info))
+
     if '_relationships' in dir(model):
         for relationship in model.relationships():
-            if info[relationship]:
+            if relationship in info:
                 if isinstance(info[relationship], list):
                     for i in info[relationship]:
-                        clean_info(model[relationship], i)
+                        clean_info(model.relationships()[relationship], i)
                 else:
-                    clean_info(model[relationship], info[relationship])
+                    clean_info(model.relationships()[relationship], info[relationship])
 
     if '_private_columns' in dir(model):
         filter_columns(model.private_columns(), info)

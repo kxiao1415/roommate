@@ -26,7 +26,7 @@ class BaseData(object):
         db.session.add(model)
         db.session.commit()
 
-        return model.id
+        return model
 
     def update(self, model, info):
         """

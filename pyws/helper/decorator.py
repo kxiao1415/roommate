@@ -11,7 +11,7 @@ from pyws.cache.cache_constants import REQUEST_LIMIT_KEY, TOKEN_USER_KEY
 _redis_store = RedisStore()
 
 
-def validate_json(*expected_args):
+def validate_json(required_fields=None, allowed_model=None):
     """
     **User Example 1**
 
@@ -23,16 +23,59 @@ def validate_json(*expected_args):
 
     **User Example 2**
 
-        @validate_json('user_name', 'password')
+        @validate_json(required_fields=['user_name', 'password'])
         def authenticate_user():
             pass
 
         1. Makes sure that a valid json object is part of the request
         2. Makes sure the json object contains 'user_name' and 'password'
 
-    :param expected_args:
+    **User Example 3**
+
+        @validate_json(required_fields=['user_name', 'password'], allowed_model=UserModel)
+        def authenticate_user():
+            pass
+
+        1. Makes sure that a valid json object is part of the request
+        2. Makes sure the json object contains 'user_name' and 'password'
+        3. Makes sure the json object conforms to columns on user model as well as its relationship model
+
+    :param required_fields: list
+    :param allowed_model: model
     :return:
     """
+    def check_json_against_model(json, model):
+        """
+        Get fields in the json that is not allowed by the model
+
+        :param json:
+        :param model:
+        :return: {
+                     'user': ['exra_1', 'extra_2']
+                     'preference': ['extra_3', 'extra_4']
+                 }
+        """
+        not_allowed_fields = {model.__tablename__: []}
+        if not isinstance(json, dict):
+            raise Exception(u"'{0}' is not a invalid hash.".format(json))
+
+        for field in json:
+            if field in model.__table__.columns.keys():
+                continue
+            elif '_relationships' in dir(model):
+                if field in model.relationships():
+                    relationship_model = model.relationships()[field]
+                    if isinstance(json[field], list):
+                        for each in json[field]:
+                            not_allowed_fields.update(check_json_against_model(each, relationship_model))
+                    else:
+                        not_allowed_fields.update(check_json_against_model(json[field], relationship_model))
+                else:
+                    not_allowed_fields[model.__tablename__].append(field)
+            else:
+                not_allowed_fields[model.__tablename__].append(field)
+
+        return not_allowed_fields
 
     def decorator(f):
         @wraps(f)
@@ -46,14 +89,30 @@ def validate_json(*expected_args):
             if not isinstance(json, dict):
                 raise Exception(u'Payload must be a valid hash.')
 
-            missing_fields = []
-            for expected_arg in expected_args:
-                if expected_arg not in json:
-                    missing_fields.append(expected_arg)
+            if required_fields:
+                missing_fields = []
+                for field in required_fields:
+                    if field not in json:
+                        missing_fields.append(field)
 
-            if missing_fields:
-                raise Exception('Required fields [ {0} ] are missing from json payload.'
-                                .format(', '.join(missing_fields)))
+                if missing_fields:
+                    raise Exception(u'Required fields [ {0} ] are missing from json payload.'
+                                    .format(', '.join(missing_fields)))
+
+            if allowed_model:
+                extra_fields = check_json_against_model(json, allowed_model)
+
+                has_extra_fields = False
+                extra_fields_copy = extra_fields.copy()
+                for tablename in extra_fields:
+                    if extra_fields[tablename]:
+                        has_extra_fields = True
+                    else:
+                        del extra_fields_copy[tablename]
+
+                if has_extra_fields:
+                    raise Exception(u'These fields {0} are not allowed in the json payload.'
+                                    .format(extra_fields_copy))
 
             return f(*args, **kwargs)
         return decorated_function

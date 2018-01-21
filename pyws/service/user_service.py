@@ -34,11 +34,13 @@ def create_user(user_info):
     :param user_info:
     :return: user id
     """
-    new_user = UserModel(user_info)
-
+    new_preference = None
     if 'preference' in user_info:
         new_preference = PreferenceModel(user_info['preference'])
-        new_user.preference = new_preference
+        del user_info['preference']
+
+    new_user = UserModel(user_info)
+    new_user.preference = new_preference
 
     return _user_data.create(new_user)
 

@@ -27,14 +27,17 @@ class PreferenceModel(db.Model, BaseModel):
     def __init__(self, obj=None):
         db.Model.__init__(self, **obj)
 
-    def individual_preference_columns(self):
-        return self.individual_preference_columns
+    @classmethod
+    def individual_preference_columns(cls):
+        return cls.individual_preference_columns
 
-    def shared_preference_columns(self):
-        return self.shared_preference_columns
+    @classmethod
+    def shared_preference_columns(cls):
+        return cls.shared_preference_columns
 
-    def hidden_columns(self):
-        return self._hidden_columns
+    @classmethod
+    def hidden_columns(cls):
+        return cls._hidden_columns
 
     def __repr__(self):
         return '<id: {0}>'.format(self.id)

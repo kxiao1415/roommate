@@ -15,7 +15,11 @@ class UserTestSuite(unittest.TestCase):
         'first_name': 'test_first_name',
         'last_name': 'test_last_name',
         'email': 'test@email.com',
-        'password': 'abcxyz'
+        'password': 'abcxyz',
+        'preference': {
+            'gender': 'F',
+            'age': 30
+        }
     }
 
     test_user_id = None
@@ -44,6 +48,7 @@ class UserTestSuite(unittest.TestCase):
 
         response = self.user_api.get_user(self.test_user_id)
         self.assertIn('user', response)
+        self.assertIn('preference', response['user'])
 
     def test_get_user_non_existing_user_neg(self):
         """test get a user that does not exist"""
@@ -112,7 +117,13 @@ class UserTestSuite(unittest.TestCase):
             'created_time': one_hour_ago,
             'age_last_modified': one_hour_ago,
             'profile_photo': 'test/path/photo.png',
-            'last_deleted_time': one_hour_ago
+            'last_deleted_time': one_hour_ago,
+
+            # preference
+            'preference': {
+                'gender': 'M',
+                'age': 25
+            }
         }
 
         response = self.user_api.create_user(user_info)
@@ -129,6 +140,11 @@ class UserTestSuite(unittest.TestCase):
             self.assertNotEqual(response['user']['age_last_modified'], one_hour_ago)
             self.assertEqual(response['user']['profile_photo'], None)
             self.assertEqual(response['user']['last_deleted_time'], None)
+
+            # make sure preference is created
+            for key in user_info['preference']:
+                self.assertEqual(response['user']['preference'][key],
+                                 user_info['preference'][key])
 
         finally:
             # hard delete this user
@@ -148,6 +164,30 @@ class UserTestSuite(unittest.TestCase):
         self.assertIn('error', response)
         self.assertEqual(response['error']['msg'],
                          'Required fields [ last_name, password ] are missing from json payload.')
+
+    def test_create_user_with_not_allowed_fields_neg(self):
+        """test create user with not allowed fields"""
+
+        # Field 'test' and 'pref_test' are not allowed
+        user_info = {
+            'test': 'not allowed',
+            'user_name': 'integration_test',
+            'first_name': 'integration_test_first_name',
+            'last_name': 'integration_test_last_name',
+            'email': 'integration_test@email.com',
+            'password': 'abcxyz',
+            'preference': {
+                'gender': 'M',
+                'age': 30,
+                'pref_test': 'test'
+
+            }
+        }
+        response = self.user_api.create_user(user_info)
+        self.assertIn('error', response)
+        self.assertEqual(response['error']['msg'],
+                         "These fields {'preference': ['pref_test'], 'user': ['test']} "
+                         "are not allowed in the json payload.")
 
     def test_create_user_without_valid_json_payload_neg(self):
         """test create user without a valid json payload"""
@@ -173,6 +213,10 @@ class UserTestSuite(unittest.TestCase):
 
         create_response = self.user_api.create_user(user_info)
 
+        # make sure preference is not in the response
+        self.assertIn('user', create_response)
+        self.assertNotIn('preference', create_response['user'])
+
         # authenticate
         auth_response = self.user_api.authenticate_user(user_info)
 
@@ -192,7 +236,13 @@ class UserTestSuite(unittest.TestCase):
             'created_time': one_hour_ago,
             'age_last_modified': one_hour_ago,
             'profile_photo': 'test/path/photo.png',
-            'last_deleted_time': one_hour_ago
+            'last_deleted_time': one_hour_ago,
+
+            # preference
+            'preference': {
+                'age': 35,
+                'gender': 'F'
+            }
         }
 
         update_response = self.user_api.update_user(create_response['user']['id'],
@@ -223,6 +273,13 @@ class UserTestSuite(unittest.TestCase):
             # make sure private field 'age_last_modified' is updated
             self.assertNotEqual(get_response['user']['age_last_modified'],
                                 create_response['user']['age_last_modified'])
+
+            # make sure preference is created
+            self.assertIn('preference', get_response['user'])
+            # make sure preference is created
+            for key in update_user_info['preference']:
+                self.assertEqual(get_response['user']['preference'][key],
+                                 update_user_info['preference'][key])
 
         finally:
             # hard delete this user
