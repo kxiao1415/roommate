@@ -17,6 +17,8 @@ class Config(object):
 
     UPLOAD_FOLDER = '/var/www/roommate/storage/'
 
+    NUMBER_PER_PAGE = 9
+
 
 class ProductionConfig(Config):
     DEBUG = False

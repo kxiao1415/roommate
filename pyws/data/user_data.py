@@ -6,6 +6,7 @@ from pyws.data.base_data import BaseData
 from pyws.data.model.user_model import UserModel
 from pyws.data.model.preference_model import PreferenceModel
 from pyws.cache import cache_helper
+from config import Config
 
 
 class UserData(BaseData):
@@ -100,4 +101,4 @@ class UserData(BaseData):
             for attr, value in shared_preference.items():
                 query = query.filter(getattr(PreferenceModel, attr)==value)
 
-        return query.all()
+        return query.paginate(page, Config.NUMBER_PER_PAGE, False).items
