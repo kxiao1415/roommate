@@ -94,22 +94,94 @@ def get_user(user_id):
 @latest.route('/users/', methods=['GET'])
 @limit(requests=100, window=60, by="ip")
 def get_qualified_users():
+    """
+    Get all users that fit the filter criteria
+
+    **sample request**
+
+        curl -X GET 'http://localhost:5000/users/?age=35&gender=M'
+
+    **sample response**
+
+        {
+            "users":
+                [
+                    {
+                        "last_name": "test_last_name",
+                        "education": null,
+                        "created_time": "2017-12-17T03:59:16.782856",
+                        "budget_min": null,
+                        "id": 1,
+                        "email": "test@gmail.com",
+                        "short_description": null,
+                        "gender": null,
+                        "long_description": null,
+                        "age_last_modified": "2017-12-17T03:59:16.782865",
+                        "budget_max": null,
+                        "user_name": "test_user_name",
+                        "age": null,
+                        "phone": null,
+                        "first_name": "test_first_name",
+                        "deleted": false,
+                        "last_deleted_time": "2017-12-17T03:59:16.782865",
+                        "profile_photo": "example/path/to/photo.png",
+                        "preference": {
+                                          "gender": "F",
+                                          "education": "H",
+                                          "age": 25
+                                      }
+                    },
+                    {
+                        "last_name": "test_last_name",
+                        "education": null,
+                        "created_time": "2017-12-17T03:59:16.782856",
+                        "budget_min": null,
+                        "id": 1,
+                        "email": "test@gmail.com",
+                        "short_description": null,
+                        "gender": null,
+                        "long_description": null,
+                        "age_last_modified": "2017-12-17T03:59:16.782865",
+                        "budget_max": null,
+                        "user_name": "test_user_name",
+                        "age": null,
+                        "phone": null,
+                        "first_name": "test_first_name",
+                        "deleted": false,
+                        "last_deleted_time": "2017-12-17T03:59:16.782865",
+                        "profile_photo": "example/path/to/photo.png",
+                        "preference": {
+                                          "gender": "F",
+                                          "education": "H",
+                                          "age": 25
+                                      }
+                    }
+                ]
+            }
+        }
+
+    """
     individual_preference = {}
     shared_preference = {}
 
     for filter in PreferenceModel.individual_preference_columns():
-        individual_preference[filter] = request.args.get(filter, default=None)
+        filter_value = request.args.get(filter, default=None)
+        if filter_value:
+            individual_preference[filter] = filter_value
 
     for filter in PreferenceModel.shared_preference_columns():
-        shared_preference[filter] = request.args.get(filter, default=None)
+        filter_value = request.args.get(filter, default=None)
+        if filter_value:
+            shared_preference[filter] = filter_value
 
-    users = user_service.get_qualified_users(individual_preference, shared_preference)
+    page = request.args.get('page', default=1)
+
+    users = user_service.get_qualified_users(individual_preference, shared_preference, page=page)
     return jsonify_response(users=[user.to_json(filter_hidden_columns=True) for user in users])
 
 
 @latest.route('/users/', methods=['POST'])
-@validate_json(required_fields=UserModel.required_columns(),
-               allowed_model=UserModel)
+@validate_json(required_fields=UserModel.required_columns(), allowed_model=UserModel)
 @limit(requests=100, window=60, by="ip")
 def create_user():
     """

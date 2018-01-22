@@ -10,13 +10,13 @@ class UserApi(object):
         return network_helpers.http_request('/users/', data=user_info, verb='POST')
 
     def get_user(self, user_id):
-        return network_helpers.http_request('/users/{0}'.format(user_id), verb='GET')
+        return network_helpers.http_request('/users/{0}/'.format(user_id), verb='GET')
 
     def update_user(self, user_id, user_info, token):
-        return network_helpers.http_request('/users/{0}'.format(user_id), token=token, data=user_info, verb='PUT')
+        return network_helpers.http_request('/users/{0}/'.format(user_id), token=token, data=user_info, verb='PUT')
 
     def hard_delete_user(self, user_id, token):
-        return network_helpers.http_request('/users/{0}'.format(user_id), token=token, verb='DELETE')
+        return network_helpers.http_request('/users/{0}/'.format(user_id), token=token, verb='DELETE')
 
     def upload_user_photo(self, user_id, file_path, token):
 
@@ -27,4 +27,14 @@ class UserApi(object):
                                                 files=files)
 
     def delete_user_photo(self, user_id, token):
-        return network_helpers.http_request('/users/{0}/photos'.format(user_id), token=token, verb='DELETE')
+        return network_helpers.http_request('/users/{0}/photos/'.format(user_id), token=token, verb='DELETE')
+
+    def get_quailified_users(self, filter_criteria):
+
+        query_param = []
+        for filter in filter_criteria:
+            query_param.append('{0}={1}'.format(filter, filter_criteria[filter]))
+
+        interface = '/users/?{0}'.format('&'.join(query_param))
+
+        return network_helpers.http_request(interface, verb='GET')

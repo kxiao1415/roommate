@@ -82,7 +82,7 @@ class UserData(BaseData):
         """
         return db.session.query(UserModel).filter_by(user_name=user_name).first()
 
-    def get_qualified_users(self, individual_preference, shared_preference):
+    def get_qualified_users(self, individual_preference, shared_preference, page=1):
         """
         Get a list of qualified users
 

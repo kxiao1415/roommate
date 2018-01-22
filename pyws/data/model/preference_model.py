@@ -29,11 +29,11 @@ class PreferenceModel(db.Model, BaseModel):
 
     @classmethod
     def individual_preference_columns(cls):
-        return cls.individual_preference_columns
+        return cls._individual_preference_columns
 
     @classmethod
     def shared_preference_columns(cls):
-        return cls.shared_preference_columns
+        return cls._shared_preference_columns
 
     @classmethod
     def hidden_columns(cls):

@@ -16,6 +16,7 @@ class UserTestSuite(unittest.TestCase):
         'last_name': 'test_last_name',
         'email': 'test@email.com',
         'password': 'abcxyz',
+        'gender': 'M',
         'preference': {
             'gender': 'F',
             'age': 30
@@ -178,15 +179,13 @@ class UserTestSuite(unittest.TestCase):
             'password': 'abcxyz',
             'preference': {
                 'gender': 'M',
-                'age': 30,
-                'pref_test': 'test'
-
+                'age': 30
             }
         }
         response = self.user_api.create_user(user_info)
         self.assertIn('error', response)
         self.assertEqual(response['error']['msg'],
-                         "These fields {'user': ['test'], 'preference': ['pref_test']} "
+                         "These fields {'user': ['test']} "
                          "are not allowed in the json payload.")
 
     def test_create_user_without_valid_json_payload_neg(self):
@@ -366,6 +365,17 @@ class UserTestSuite(unittest.TestCase):
         get_response = self.user_api.get_user(self.test_user_id)
         self.assertIn('user', get_response)
         self.assertEqual(get_response['user']['profile_photo'], None)
+
+    def test_get_qualified_users_pos(self):
+        """test successfully get a list of users given the filter criteria"""
+
+        filter_criteria = {
+            'gender': 'M'
+        }
+        response = self.user_api.get_quailified_users(filter_criteria)
+
+        self.assertIn('users', response)
+        self.assertEqual(1, len(response['users']))
 
 
 if __name__ == '__main__':

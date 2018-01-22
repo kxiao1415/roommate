@@ -62,16 +62,13 @@ def validate_json(required_fields=None, allowed_model=None):
         for field in json:
             if field in model.__table__.columns.keys():
                 continue
-            elif '_relationships' in dir(model):
-                if field in model.relationships():
+            if '_relationships' in dir(model) and field in model.relationships():
                     relationship_model = model.relationships()[field]
                     if isinstance(json[field], list):
                         for each in json[field]:
                             not_allowed_fields.update(check_json_against_model(each, relationship_model))
                     else:
                         not_allowed_fields.update(check_json_against_model(json[field], relationship_model))
-                else:
-                    not_allowed_fields[model.__tablename__].append(field)
             else:
                 not_allowed_fields[model.__tablename__].append(field)
 
