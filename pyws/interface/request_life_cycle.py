@@ -60,6 +60,7 @@ def catch_all(exc):
     :param exc: exception
     :return:
     """
+    current_app.logger.error('Unhandled Exception: %s', (exc))
 
     error = {
         'type': 'generic',

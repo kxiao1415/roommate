@@ -1,4 +1,6 @@
 import os
+import logging
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -18,6 +20,12 @@ class Config(object):
     UPLOAD_FOLDER = '/var/www/roommate/storage/'
 
     NUMBER_PER_PAGE = 9
+
+    LOGGING = {
+        'log_file_path': '/var/www/roommate/log/pyws.log',
+        'level': logging.DEBUG,
+        'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    }
 
 
 class ProductionConfig(Config):

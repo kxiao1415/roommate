@@ -96,7 +96,7 @@ class UserData(BaseData):
 
         for attr, value in individual_preference.items():
             if attr == 'age_group':
-                # Need to add the time between now and age last modified to get
+                # Need to add the time between now and age_last_modified to get
                 # the real user age
                 user_age = UserModel.age + (datetime.utcnow().year - db.extract('year', UserModel.age_last_modified))
                 query = query.filter(user_age.in_(AGE_GROUPS[value]))
