@@ -1,3 +1,6 @@
+from pyws.constants.user_constants import AGE_GROUPS
+
+
 def clean_info(model, info):
     """
     recursively remove private columns of the model from the info

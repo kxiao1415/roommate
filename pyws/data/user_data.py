@@ -6,6 +6,7 @@ from pyws.data.base_data import BaseData
 from pyws.data.model.user_model import UserModel
 from pyws.data.model.preference_model import PreferenceModel
 from pyws.cache import cache_helper
+from pyws.constants.user_constants import AGE_GROUPS
 from config import Config
 
 
@@ -94,7 +95,13 @@ class UserData(BaseData):
         query = db.session.query(UserModel)
 
         for attr, value in individual_preference.items():
-            query = query.filter(getattr(UserModel, attr)==value)
+            if attr == 'age_group':
+                # Need to add the time between now and age last modified to get
+                # the real user age
+                user_age = UserModel.age + (datetime.utcnow().year - db.extract('year', UserModel.age_last_modified))
+                query = query.filter(user_age.in_(AGE_GROUPS[value]))
+            else:
+                query = query.filter(getattr(UserModel, attr)==value)
 
         if shared_preference:
             query.join(UserModel.preference)

@@ -17,9 +17,10 @@ class UserTestSuite(unittest.TestCase):
         'email': 'test@email.com',
         'password': 'abcxyz',
         'gender': 'M',
+        'age': 30,
         'preference': {
             'gender': 'F',
-            'age': 30
+            'age_group': '30-35'
         }
     }
 
@@ -123,7 +124,7 @@ class UserTestSuite(unittest.TestCase):
             # preference
             'preference': {
                 'gender': 'M',
-                'age': 25
+                'age_group': '21-25'
             }
         }
 
@@ -179,7 +180,7 @@ class UserTestSuite(unittest.TestCase):
             'password': 'abcxyz',
             'preference': {
                 'gender': 'M',
-                'age': 30
+                'age_group': '30-35'
             }
         }
         response = self.user_api.create_user(user_info)
@@ -239,7 +240,7 @@ class UserTestSuite(unittest.TestCase):
 
             # preference
             'preference': {
-                'age': 35,
+                'age_group': '35-40',
                 'gender': 'F'
             }
         }
@@ -370,7 +371,8 @@ class UserTestSuite(unittest.TestCase):
         """test successfully get a list of users given the filter criteria"""
 
         filter_criteria = {
-            'gender': 'M'
+            'gender': 'M',
+            'age_group': '25-30'
         }
         response = self.user_api.get_quailified_users(filter_criteria)
 

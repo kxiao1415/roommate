@@ -76,7 +76,7 @@ def get_user(user_id):
                 "preference": {
                     "gender": "F",
                     "education": "H",
-                    "age": 25
+                    "age_group": "25-30"
                 }
             }
         }
@@ -99,7 +99,7 @@ def get_qualified_users():
 
     **sample request**
 
-        curl -X GET 'http://localhost:5000/users/?age=35&gender=M'
+        curl -X GET 'http://localhost:5000/users/?age_group=35-40&gender=M'
 
     **sample response**
 
@@ -128,7 +128,7 @@ def get_qualified_users():
                         "preference": {
                                           "gender": "F",
                                           "education": "H",
-                                          "age": 25
+                                          "age_group": "25-30"
                                       }
                     },
                     {
@@ -153,7 +153,7 @@ def get_qualified_users():
                         "preference": {
                                           "gender": "F",
                                           "education": "H",
-                                          "age": 25
+                                          "age_group": "25-30"
                                       }
                     }
                 ]
@@ -199,7 +199,7 @@ def create_user():
                     "preference": {
                                       "gender": "F",
                                       "education": "H",
-                                      "age": 25
+                                      "age_group": "25-30"
                                   }
                 }'
 
@@ -228,7 +228,7 @@ def create_user():
                 "preference": {
                     "gender": "F",
                     "education": "H",
-                    "age": 25
+                    "age_group": "25-30"
                 }
             }
         }
@@ -262,7 +262,7 @@ def update_user(user_id):
                     "preference": {
                                       "gender": "F",
                                       "education": "H",
-                                      "age": 25
+                                      "age_group": "25-30"
                                   }
                 }'
 

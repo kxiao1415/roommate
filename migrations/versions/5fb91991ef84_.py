@@ -1,18 +1,17 @@
 """empty message
 
-Revision ID: 22eab05002c0
+Revision ID: 5fb91991ef84
 Revises: None
-Create Date: 2018-01-21 09:55:12.777123
+Create Date: 2018-01-22 07:23:21.840396
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '22eab05002c0'
+revision = '5fb91991ef84'
 down_revision = None
 
 from alembic import op
 import sqlalchemy as sa
-
 from config import Config
 from sqlalchemy_utils import EncryptedType
 
@@ -46,7 +45,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('gender', sa.Enum('M', 'F', name='gender_enum'), nullable=True),
     sa.Column('education', sa.Enum('H', 'C', 'G', 'B', name='education_enum'), nullable=True),
-    sa.Column('age', sa.Integer(), nullable=True),
+    sa.Column('age_group', sa.Enum('18-21', '21-25', '25-30', '30-35', '35-40', '40-45', '45-50', '50-60', name='age_group_enum'), nullable=True),
     sa.Column('budget_max', sa.Integer(), nullable=True),
     sa.Column('budget_min', sa.Integer(), nullable=True),
     sa.Column('household_size', sa.Integer(), nullable=True),
