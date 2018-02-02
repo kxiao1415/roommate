@@ -16,6 +16,10 @@ def create_app(config_name):
     # db connection
     db.init_app(app)
 
+    from pyws.email.email_helper import mail
+    # set up mail instance
+    mail.init_app(app)
+
     # server-level interface
     from pyws.interface import request_life_cycle
 

@@ -1,5 +1,6 @@
 import os
 
+from threading import Thread
 from flask import request, g
 from functools import wraps
 from inspect import getcallargs
@@ -9,6 +10,13 @@ from pyws.cache.redis_connector import RedisStore
 from pyws.cache.cache_constants import REQUEST_LIMIT_KEY, TOKEN_USER_KEY
 
 _redis_store = RedisStore()
+
+
+def async(f):
+    def wrapper(*args, **kwargs):
+        thr = Thread(target=f, args=args, kwargs=kwargs)
+        thr.start()
+    return wrapper
 
 
 def validate_json(required_fields=None, allowed_model=None):

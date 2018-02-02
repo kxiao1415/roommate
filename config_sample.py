@@ -12,11 +12,6 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:fakepassword@localhost/fake_db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    REDIS_HOST = 'localhost'
-    REDIS_PORT = 6379
-    REDIS_DB = 0
-    # REDIS_URL = 'redis://localhost:6379/0'
-
     UPLOAD_FOLDER = '/var/www/roommate/storage/'
 
     NUMBER_PER_PAGE = 9
@@ -26,6 +21,25 @@ class Config(object):
         'level': logging.DEBUG,
         'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     }
+
+    ###################################################################################################################
+    # redis set up
+    ###################################################################################################################
+    REDIS_HOST = 'localhost'
+    REDIS_PORT = 6379
+    REDIS_DB = 0
+    # REDIS_URL = 'redis://localhost:6379/0'
+
+    ###################################################################################################################
+    # email set up
+    ###################################################################################################################
+    SEND_EMAIL = True
+    MAIL_SERVER = 'smtp.googlemail.com'
+    MAIL_PORT = 465
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
 
 
 class ProductionConfig(Config):

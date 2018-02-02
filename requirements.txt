@@ -1,9 +1,11 @@
 alembic==0.9.6
 asn1crypto==0.24.0
+blinker==1.4
 cffi==1.11.2
 click==6.7
 cryptography==2.1.4
 Flask==0.12.2
+Flask-Mail==0.9.1
 Flask-Migrate==1.8.0
 Flask-Redis==0.3.0
 Flask-Script==2.0.6

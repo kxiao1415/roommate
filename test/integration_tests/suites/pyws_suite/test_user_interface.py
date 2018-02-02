@@ -14,7 +14,7 @@ class UserTestSuite(unittest.TestCase):
         'user_name': 'test',
         'first_name': 'test_first_name',
         'last_name': 'test_last_name',
-        'email': 'test@email.com',
+        'email': 'k.xiao1415@gmail.com',
         'password': 'abcxyz',
         'gender': 'M',
         'age': 30,

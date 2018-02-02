@@ -1,12 +1,14 @@
-from flask import request
+from flask import request, render_template
 
 from pyws import latest
+from pyws.email import email_helper
 from pyws.service import user_service, auth_service
 from pyws.helper.jsonify_response import jsonify_response
 from pyws.helper.decorator import limit, validate_json, auth_required
 from pyws.helper import data_helper
 from pyws.data.model.user_model import UserModel
 from pyws.data.model.preference_model import PreferenceModel
+from config import Config
 
 
 @latest.route('/users/authenticate/', methods=['POST'])
@@ -237,6 +239,14 @@ def create_user():
     user_info = request.json
     data_helper.clean_info(UserModel, user_info)
     new_user = user_service.create_user(user_info)
+
+    if new_user and Config.SEND_EMAIL:
+        email_helper.send_email(
+            [new_user.email],
+            render_template('welcome_email_subject.txt'),
+            render_template('welcome_email_body.txt', user=new_user),
+            render_template('welcome_email_body.html', user=new_user)
+        )
 
     return jsonify_response(user=new_user.to_json(filter_hidden_columns=True))
 
