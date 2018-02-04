@@ -275,6 +275,10 @@ def update_user(user_id):
 
     """
 
+    # to update password, user '/reset_password/' end point
+    if 'password' in request.json:
+        raise Exception('Please refer to /reset_password/ end point for password update.')
+
     user = user_service.get_user_by_user_id(user_id)
 
     if not user:
@@ -282,10 +286,6 @@ def update_user(user_id):
 
     user_info = request.json
     data_helper.clean_info(UserModel, user_info)
-
-    # to update password, user '/reset_password/' end point
-    if 'password' in user_info:
-        raise Exception('Please refer to /reset_password/ end point for password update')
 
     user_service.update_user(user, user_info)
 
@@ -314,7 +314,7 @@ def send_password_reset_email():
 
     user = user_service.get_user_by_user_email(user_email)
 
-    if user:
+    if user and Config.SEND_EMAIL:
         # create password reset token
         token = string_helper.generate_guid()
 

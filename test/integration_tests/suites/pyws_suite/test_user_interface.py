@@ -155,9 +155,8 @@ class UserTestSuite(unittest.TestCase):
     def test_create_user_with_not_allowed_fields_neg(self):
         """test create user with not allowed fields"""
 
-        # Fields 'test' and 'pref_test' are not allowed
+        # Fields 'pref_test' are not allowed
         user_info = {
-            'user_test': 'not allowed',
             'user_name': 'integration_test',
             'email': 'integration_test@email.com',
             'password': 'abcxyz',
@@ -170,7 +169,7 @@ class UserTestSuite(unittest.TestCase):
         response = self.user_api.create_user(user_info)
         self.assertIn('error', response)
         self.assertEqual(response['error']['msg'],
-                         "These fields {'user': ['user_test'], 'preference': ['pref_test']} "
+                         "These fields {'preference': ['pref_test']} "
                          "are not allowed in the json payload.")
 
     def test_create_user_without_valid_json_payload_neg(self):
@@ -299,6 +298,21 @@ class UserTestSuite(unittest.TestCase):
         self.assertIn('error', response)
         self.assertEqual(response['error']['msg'],
                          'User is not allowed to access this resource id -1.')
+
+    def test_update_user_password_neg(self):
+        """test update user with password"""
+
+        user_info = {
+            'password': 'not allowed with this end point'
+        }
+
+        response = self.user_api.update_user(self.test_user_id,
+                                             user_info,
+                                             self.test_user_token)
+
+        self.assertIn('error', response)
+        self.assertEqual(response['error']['msg'],
+                         'Please refer to /reset_password/ end point for password update.')
 
     def test_upload_and_delete_user_photo_pos(self):
         """test successfully upload, then delete a user photo"""
