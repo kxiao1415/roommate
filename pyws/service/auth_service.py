@@ -10,7 +10,7 @@ _redis_store = RedisStore()
 def authenticate_user(user_email, password):
     user = user_service.get_user_by_user_email(user_email)
     if not user or user.password != password:
-        raise Exception('No user matching the user_email and password combination.')
+        raise Exception('No user matching the email and password combination.')
 
     # retrieve existing token from cache is exists
     if _redis_store.exists(USER_TOKEN_KEY.format(user_id=user.id)):

@@ -23,7 +23,7 @@ def authenticate_user():
         curl -X POST 'http://localhost:5000/users/authenticate/'
         --header "Content-Type: application/json"
         --data '{
-                    "email": "test_user_name",
+                    "email": "test_user_email",
                     "password": "password"
                 }
 
@@ -303,7 +303,7 @@ def send_password_reset_email(user_email):
 
     """
 
-    user = user_service.get_user_by_user_name()
+    user = user_service.get_user_by_user_email()
 
 
 

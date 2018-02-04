@@ -71,25 +71,25 @@ class UserTestSuite(unittest.TestCase):
 
         # case 1. wrong password
         user_info = {
-            'user_name': 'test',
+            'email': 'k.xiao1415@gmail.com',
             'password': 'wrong password'
         }
 
         response = self.user_api.authenticate_user(user_info)
         self.assertIn('error', response)
         self.assertEqual(response['error']['msg'],
-                         'No user matching the user_name and password combination.')
+                         'No user matching the email and password combination.')
 
-        # case 2. wrong user_name
+        # case 2. wrong user_email
         user_info = {
-            'user_name': 'wrong name',
+            'email': 'wrong email',
             'password': 'abcxyz'
         }
 
         response = self.user_api.authenticate_user(user_info)
         self.assertIn('error', response)
         self.assertEqual(response['error']['msg'],
-                         'No user matching the user_name and password combination.')
+                         'No user matching the email and password combination.')
 
         # case 3. no info
         user_info = {}
@@ -97,7 +97,7 @@ class UserTestSuite(unittest.TestCase):
         response = self.user_api.authenticate_user(user_info)
         self.assertIn('error', response)
         self.assertEqual(response['error']['msg'],
-                         'Required fields [ user_name, password ] are missing from json payload.')
+                         'Required fields [ email, password ] are missing from json payload.')
 
     def test_create_user_pos(self):
         """test successfully creating a user"""

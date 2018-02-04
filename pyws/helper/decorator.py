@@ -31,21 +31,21 @@ def validate_json(required_fields=None, allowed_model=None):
 
     **User Example 2**
 
-        @validate_json(required_fields=['user_name', 'password'])
+        @validate_json(required_fields=['email', 'password'])
         def authenticate_user():
             pass
 
         1. Makes sure that a valid json object is part of the request
-        2. Makes sure the json object contains 'user_name' and 'password'
+        2. Makes sure the json object contains 'email' and 'password'
 
     **User Example 3**
 
-        @validate_json(required_fields=['user_name', 'password'], allowed_model=UserModel)
+        @validate_json(required_fields=['email', 'password'], allowed_model=UserModel)
         def authenticate_user():
             pass
 
         1. Makes sure that a valid json object is part of the request
-        2. Makes sure the json object contains 'user_name' and 'password'
+        2. Makes sure the json object contains 'email' and 'password'
         3. Makes sure the json object conforms to columns on user model as well as its relationship model
 
     :param required_fields: list
