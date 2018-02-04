@@ -110,13 +110,6 @@ class UserTestSuite(unittest.TestCase):
             'email': 'integration_test@email.com',
             'password': 'abcxyz',
 
-            # private fields
-            'id': -1,
-            'created_time': one_hour_ago,
-            'age_last_modified': one_hour_ago,
-            'profile_photo': 'test/path/photo.png',
-            'last_deleted_time': one_hour_ago,
-
             # preference
             'preference': {
                 'gender': 'M',
@@ -166,19 +159,20 @@ class UserTestSuite(unittest.TestCase):
 
         # Fields 'test' and 'pref_test' are not allowed
         user_info = {
-            'test': 'not allowed',
+            'user_test': 'not allowed',
             'user_name': 'integration_test',
             'email': 'integration_test@email.com',
             'password': 'abcxyz',
             'preference': {
                 'gender': 'M',
-                'age_group': '30-35'
+                'age_group': '30-35',
+                'pref_test': 'not allowed'
             }
         }
         response = self.user_api.create_user(user_info)
         self.assertIn('error', response)
         self.assertEqual(response['error']['msg'],
-                         "These fields {'user': ['test']} "
+                         "These fields {'user': ['user_test'], 'preference': ['pref_test']} "
                          "are not allowed in the json payload.")
 
     def test_create_user_without_valid_json_payload_neg(self):
@@ -217,14 +211,6 @@ class UserTestSuite(unittest.TestCase):
             'user_name': 'update_test',
             'email': 'update_test@email.com',
             'age': 30,
-            'password': 'new password',
-
-            # private columns
-            'id': -1,
-            'created_time': one_hour_ago,
-            'age_last_modified': one_hour_ago,
-            'profile_photo': 'test/path/photo.png',
-            'last_deleted_time': one_hour_ago,
 
             # preference
             'preference': {
@@ -240,11 +226,6 @@ class UserTestSuite(unittest.TestCase):
         try:
             self.assertIn('success', update_response)
 
-            # make sure the new password is saved by authenticating
-            sec_auth_response = self.user_api.authenticate_user(update_user_info)
-            self.assertIn('token', sec_auth_response)
-            self.assertEqual(sec_auth_response['token'], auth_response['token'])
-
             # get the new user info
             get_response = self.user_api.get_user(create_response['user']['id'])
 
@@ -252,11 +233,6 @@ class UserTestSuite(unittest.TestCase):
             public_fields = ['user_name', 'email', 'age']
             for field in public_fields:
                 self.assertEqual(update_user_info[field], get_response['user'][field])
-
-            # make sure non-update-able private fields are not updated
-            non_update_able_private_fields = ['id', 'created_time', 'profile_photo', 'last_deleted_time']
-            for field in non_update_able_private_fields:
-                self.assertEqual(get_response['user'][field], create_response['user'][field])
 
             # make sure private field 'age_last_modified' is updated
             self.assertNotEqual(get_response['user']['age_last_modified'],
@@ -364,6 +340,12 @@ class UserTestSuite(unittest.TestCase):
 
         self.assertIn('users', response)
         self.assertEqual(1, len(response['users']))
+
+    def test_send_password_reset_email_pos(self):
+        """test get success in the api response"""
+
+        response = self.user_api.get_password_reset_email(self.test_user_info['email'])
+        self.assertIn('success', response)
 
 
 if __name__ == '__main__':

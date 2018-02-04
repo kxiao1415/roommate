@@ -52,6 +52,7 @@ def validate_json(required_fields=None, allowed_model=None):
     :param allowed_model: model
     :return:
     """
+
     def check_json_against_model(json, model):
         """
         Get fields in the json that is not allowed by the model
@@ -63,24 +64,30 @@ def validate_json(required_fields=None, allowed_model=None):
                      'preference': ['extra_3', 'extra_4']
                  }
         """
-        not_allowed_fields = {model.__tablename__: []}
+
+        not_allowed_fields = []
+        result = {}
         if not isinstance(json, dict):
             raise Exception(u"'{0}' is not a invalid hash.".format(json))
 
         for field in json:
-            if field in model.__table__.columns.keys():
-                continue
             if '_relationships' in dir(model) and field in model.relationships():
                     relationship_model = model.relationships()[field]
                     if isinstance(json[field], list):
                         for each in json[field]:
-                            not_allowed_fields.update(check_json_against_model(each, relationship_model))
+                            result.update(check_json_against_model(each, relationship_model))
                     else:
-                        not_allowed_fields.update(check_json_against_model(json[field], relationship_model))
-            else:
-                not_allowed_fields[model.__tablename__].append(field)
+                        result.update(check_json_against_model(json[field], relationship_model))
 
-        return not_allowed_fields
+            elif field not in model.__table__.columns.keys() or \
+                    ('_private_columns' in dir(model) and field in model.private_columns()):
+                not_allowed_fields.append(field)
+
+        if not not_allowed_fields:
+            return result
+
+        result.update({model.__tablename__: not_allowed_fields})
+        return result
 
     def decorator(f):
         @wraps(f)
@@ -107,17 +114,9 @@ def validate_json(required_fields=None, allowed_model=None):
             if allowed_model:
                 extra_fields = check_json_against_model(json, allowed_model)
 
-                has_extra_fields = False
-                extra_fields_copy = extra_fields.copy()
-                for tablename in extra_fields:
-                    if extra_fields[tablename]:
-                        has_extra_fields = True
-                    else:
-                        del extra_fields_copy[tablename]
-
-                if has_extra_fields:
+                if extra_fields:
                     raise Exception(u'These fields {0} are not allowed in the json payload.'
-                                    .format(extra_fields_copy))
+                                    .format(extra_fields))
 
             return f(*args, **kwargs)
         return decorated_function
@@ -248,6 +247,7 @@ def auth_required(*resources):
         :param user_id:
         :return:
         """
+
         cached_user_info = _redis_store.hgetall(TOKEN_USER_KEY.format(token=g.token))
         return user_id == cached_user_info['id']
 

@@ -1,4 +1,4 @@
-from flask import request, render_template
+from flask import g, request, render_template
 
 from pyws import latest
 from pyws.email import email_helper
@@ -6,6 +6,8 @@ from pyws.service import user_service, auth_service
 from pyws.helper.jsonify_response import jsonify_response
 from pyws.helper.decorator import limit, validate_json, auth_required
 from pyws.helper import data_helper
+from pyws.helper import string_helper
+from pyws.cache import cache_helper
 from pyws.data.model.user_model import UserModel
 from pyws.data.model.preference_model import PreferenceModel
 from config import Config
@@ -226,6 +228,7 @@ def create_user():
         }
 
     """
+
     user_info = request.json
     data_helper.clean_info(UserModel, user_info)
     new_user = user_service.create_user(user_info)
@@ -280,20 +283,24 @@ def update_user(user_id):
     user_info = request.json
     data_helper.clean_info(UserModel, user_info)
 
+    # to update password, user '/reset_password/' end point
+    if 'password' in user_info:
+        raise Exception('Please refer to /reset_password/ end point for password update')
+
     user_service.update_user(user, user_info)
 
     return jsonify_response(success=True)
 
 
-@latest.route('/password_reset_email/<user_email>', methods=['GET'])
+@latest.route('/password_reset_email/', methods=['GET'])
 @limit(requests=100, window=60, by="ip")
-def send_password_reset_email(user_email):
+def send_password_reset_email():
     """
     Send user password reset email if the email exists
 
     **sample request**
 
-        curl -X GET 'http://localhost:5000/password_reset_email/<user_email>'
+        curl -X GET 'http://localhost:5000/password_reset_email/?email=test@test.com'
 
     **sample response**
 
@@ -303,8 +310,84 @@ def send_password_reset_email(user_email):
 
     """
 
-    user = user_service.get_user_by_user_email()
+    user_email = request.args.get('email', default=None)
 
+    user = user_service.get_user_by_user_email(user_email)
+
+    if user:
+        # create password reset token
+        token = string_helper.generate_guid()
+
+        # store password reset token in redis
+        cache_helper.cache_password_reset_key(user, token)
+
+        # generate the password reset url to be included in the email
+        password_reset_url = 'http://localhost:5000/reset_password/?token={token}'.format(token=token)
+
+        # send email
+        email_helper.send_email(
+                [user_email],
+                render_template('password_reset_email_subject.txt'),
+                render_template('password_reset_email_body.txt',
+                                user_name=user.user_name,
+                                link=password_reset_url),
+                render_template('password_reset_email_body.html',
+                                user_name=user.user_name,
+                                link=password_reset_url)
+            )
+
+    return jsonify_response(success=True)
+
+
+@latest.route('/reset_password/', methods=['GET'])
+@limit(requests=100, window=60, by="ip")
+def get_reset_password_page():
+    # if valid_reset_token:
+    #
+    # else:
+    #
+    pass
+
+
+@latest.route('/users/<user_id>/password', methods=['PUT'])
+@validate_json(required_fields=['password'])
+@limit(requests=100, window=60, by="ip")
+def reset_password(user_id):
+    """
+    Reset password
+
+    **sample request**
+
+        curl -X PUT 'http://localhost:5000/users/121/password_reset/'
+        --header "Content-Type: application/json"
+        --header "X-TOKEN: MDhjOTliMzg1Y2Q2NDA5ZTgwNzg4NGY3NjM1NTQ0M2U"
+        --data '{
+                    "password": "test password"
+                }'
+
+    **sample response**
+
+        {
+            "success": true
+        }
+
+    """
+
+    is_valid_token = cache_helper.validate_password_reset_token(user_id, g.token)
+
+    if not is_valid_token:
+        raise Exception('The password reset token is not valid for user {0}'.format(user_id))
+
+    user = user_service.get_user_by_user_id(user_id)
+
+    if not user:
+        raise Exception('Invalid user id.')
+
+    password = request.json['password']
+
+    user_service.update_user(user, {'password': password})
+
+    return jsonify_response(success=True)
 
 
 @latest.route('/users/<user_id>', methods=['DELETE'])

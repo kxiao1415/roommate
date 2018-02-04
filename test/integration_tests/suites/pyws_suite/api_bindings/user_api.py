@@ -38,3 +38,9 @@ class UserApi(object):
         interface = '/users/?{0}'.format('&'.join(query_param))
 
         return network_helpers.http_request(interface, verb='GET')
+
+    def get_password_reset_email(self, email):
+
+        interface = '/password_reset_email/?email={0}'.format(email)
+
+        return network_helpers.http_request(interface, verb='GET')
