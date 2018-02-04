@@ -12,7 +12,7 @@ from config import Config
 
 
 @latest.route('/users/authenticate/', methods=['POST'])
-@validate_json(required_fields=['user_name', 'password'])
+@validate_json(required_fields=['email', 'password'])
 @limit(requests=100, window=60, by="ip")
 def authenticate_user():
     """
@@ -23,7 +23,7 @@ def authenticate_user():
         curl -X POST 'http://localhost:5000/users/authenticate/'
         --header "Content-Type: application/json"
         --data '{
-                    "user_name": "test_user_name",
+                    "email": "test_user_name",
                     "password": "password"
                 }
 
@@ -36,10 +36,10 @@ def authenticate_user():
 
     """
 
-    user_name = request.json['user_name']
+    user_email = request.json['email']
     password = request.json['password']
 
-    token = auth_service.authenticate_user(user_name, password)
+    token = auth_service.authenticate_user(user_email, password)
     return jsonify_response(token=token)
 
 
@@ -57,7 +57,6 @@ def get_user(user_id):
 
         {
             "user": {
-                "last_name": "test_last_name",
                 "education": null,
                 "created_time": "2017-12-17T03:59:16.782856",
                 "budget_min": null,
@@ -71,7 +70,6 @@ def get_user(user_id):
                 "user_name": "test_user_name",
                 "age": null,
                 "phone": null,
-                "first_name": "test_first_name",
                 "deleted": false,
                 "last_deleted_time": "2017-12-17T03:59:16.782865",
                 "profile_photo": "example/path/to/photo.png",
@@ -109,7 +107,6 @@ def get_qualified_users():
             "users":
                 [
                     {
-                        "last_name": "test_last_name",
                         "education": null,
                         "created_time": "2017-12-17T03:59:16.782856",
                         "budget_min": null,
@@ -123,7 +120,6 @@ def get_qualified_users():
                         "user_name": "test_user_name",
                         "age": null,
                         "phone": null,
-                        "first_name": "test_first_name",
                         "deleted": false,
                         "last_deleted_time": "2017-12-17T03:59:16.782865",
                         "profile_photo": "example/path/to/photo.png",
@@ -134,7 +130,6 @@ def get_qualified_users():
                                       }
                     },
                     {
-                        "last_name": "test_last_name",
                         "education": null,
                         "created_time": "2017-12-17T03:59:16.782856",
                         "budget_min": null,
@@ -148,7 +143,6 @@ def get_qualified_users():
                         "user_name": "test_user_name",
                         "age": null,
                         "phone": null,
-                        "first_name": "test_first_name",
                         "deleted": false,
                         "last_deleted_time": "2017-12-17T03:59:16.782865",
                         "profile_photo": "example/path/to/photo.png",
@@ -195,8 +189,6 @@ def create_user():
         --header "Content-Type: application/json"
         --data '{
                     "email": "test@email.com",
-                    "first_name": "test_first_name",
-                    "last_name": "test_last_name",
                     "user_name": "test_user_name",
                     "preference": {
                                       "gender": "F",
@@ -209,7 +201,6 @@ def create_user():
 
         {
             "user": {
-                "last_name": "test_last_name",
                 "education": null,
                 "created_time": "2017-12-17T03:59:16.782856",
                 "budget_min": null,
@@ -223,7 +214,6 @@ def create_user():
                 "user_name": "test_user_name",
                 "age": null,
                 "phone": null,
-                "first_name": "test_first_name",
                 "deleted": false,
                 "last_deleted_time": "2017-12-17T03:59:16.782865",
                 "profile_photo": "example/path/to/photo.png",
@@ -266,8 +256,6 @@ def update_user(user_id):
         --header "X-TOKEN: MDhjOTliMzg1Y2Q2NDA5ZTgwNzg4NGY3NjM1NTQ0M2U"
         --data '{
                     "email": "test@email.com",
-                    "first_name": "test_first_name",
-                    "last_name": "test_last_name",
                     "user_name": "test_user_name",
                     "preference": {
                                       "gender": "F",
@@ -295,6 +283,28 @@ def update_user(user_id):
     user_service.update_user(user, user_info)
 
     return jsonify_response(success=True)
+
+
+@latest.route('/password_reset_email/<user_email>', methods=['GET'])
+@limit(requests=100, window=60, by="ip")
+def send_password_reset_email(user_email):
+    """
+    Send user password reset email if the email exists
+
+    **sample request**
+
+        curl -X GET 'http://localhost:5000/password_reset_email/<user_email>'
+
+    **sample response**
+
+        {
+            "success"=True
+        }
+
+    """
+
+    user = user_service.get_user_by_user_name()
+
 
 
 @latest.route('/users/<user_id>', methods=['DELETE'])

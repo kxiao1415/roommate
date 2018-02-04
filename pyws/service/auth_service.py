@@ -7,10 +7,10 @@ from pyws.cache.cache_constants import USER_TOKEN_KEY
 _redis_store = RedisStore()
 
 
-def authenticate_user(user_name, password):
-    user = user_service.get_user_by_user_name(user_name)
+def authenticate_user(user_email, password):
+    user = user_service.get_user_by_user_email(user_email)
     if not user or user.password != password:
-        raise Exception('No user matching the user_name and password combination.')
+        raise Exception('No user matching the user_email and password combination.')
 
     # retrieve existing token from cache is exists
     if _redis_store.exists(USER_TOKEN_KEY.format(user_id=user.id)):

@@ -12,8 +12,6 @@ class UserModel(db.Model, BaseModel):
 
     id = db.Column(db.Integer, primary_key=True)
     user_name = db.Column(db.Unicode(64), index=True, unique=True, nullable=False)
-    first_name = db.Column(db.Unicode(64), nullable=False)
-    last_name = db.Column(db.Unicode(64), nullable=False)
     email = db.Column(EncryptedType(db.Unicode(64), Config.SECRET_KEY), index=True, unique=True, nullable=False)
     phone = db.Column(EncryptedType(db.Integer, Config.SECRET_KEY), index=True, unique=True)
     gender = db.Column(db.Enum('M', 'F', name='gender_enum'))
@@ -45,8 +43,6 @@ class UserModel(db.Model, BaseModel):
 
     # columns that are required
     _required_columns = ['user_name',
-                         'first_name',
-                         'last_name',
                          'email',
                          'password']
 

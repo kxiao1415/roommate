@@ -75,14 +75,14 @@ class UserData(BaseData):
         db.session.delete(user)
         db.session.commit()
 
-    def get_user_by_user_name(self, user_name):
+    def get_user_by_user_email(self, user_email):
         """
-        Get a user model by user_name
+        Get a user model by user_email
 
-        :param user_name:
+        :param user_email:
         :return:
         """
-        return db.session.query(UserModel).filter_by(user_name=user_name).first()
+        return db.session.query(UserModel).filter_by(email=user_email).first()
 
     def get_qualified_users(self, individual_preference, shared_preference, page=1):
         """

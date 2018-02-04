@@ -12,8 +12,6 @@ class UserTestSuite(unittest.TestCase):
 
     test_user_info = {
         'user_name': 'test',
-        'first_name': 'test_first_name',
-        'last_name': 'test_last_name',
         'email': 'k.xiao1415@gmail.com',
         'password': 'abcxyz',
         'gender': 'M',
@@ -109,8 +107,6 @@ class UserTestSuite(unittest.TestCase):
         user_info = {
             # required fields
             'user_name': 'integration_test',
-            'first_name': 'integration_test_first_name',
-            'last_name': 'integration_test_last_name',
             'email': 'integration_test@email.com',
             'password': 'abcxyz',
 
@@ -156,16 +152,14 @@ class UserTestSuite(unittest.TestCase):
     def test_create_user_missing_req_fields_neg(self):
         """test create user with missing required fields"""
 
-        # missing last_name and password
+        # missing user_name and password
         user_info = {
-            'user_name': 'test',
-            'first_name': 'test_first_name',
             'email': 'test@email.com'
         }
         response = self.user_api.create_user(user_info)
         self.assertIn('error', response)
         self.assertEqual(response['error']['msg'],
-                         'Required fields [ last_name, password ] are missing from json payload.')
+                         'Required fields [ user_name, password ] are missing from json payload.')
 
     def test_create_user_with_not_allowed_fields_neg(self):
         """test create user with not allowed fields"""
@@ -174,8 +168,6 @@ class UserTestSuite(unittest.TestCase):
         user_info = {
             'test': 'not allowed',
             'user_name': 'integration_test',
-            'first_name': 'integration_test_first_name',
-            'last_name': 'integration_test_last_name',
             'email': 'integration_test@email.com',
             'password': 'abcxyz',
             'preference': {
@@ -205,8 +197,6 @@ class UserTestSuite(unittest.TestCase):
         # create a user
         user_info = {
             'user_name': 'integration_test',
-            'first_name': 'integration_test_first_name',
-            'last_name': 'integration_test_last_name',
             'email': 'integration_test@email.com',
             'password': 'abcxyz'
         }
@@ -225,8 +215,6 @@ class UserTestSuite(unittest.TestCase):
 
         update_user_info = {
             'user_name': 'update_test',
-            'first_name': 'update_test_first_name',
-            'last_name': 'update_test_last_name',
             'email': 'update_test@email.com',
             'age': 30,
             'password': 'new password',
@@ -261,7 +249,7 @@ class UserTestSuite(unittest.TestCase):
             get_response = self.user_api.get_user(create_response['user']['id'])
 
             # make sure public fields are updated
-            public_fields = ['user_name', 'first_name', 'last_name', 'email', 'age']
+            public_fields = ['user_name', 'email', 'age']
             for field in public_fields:
                 self.assertEqual(update_user_info[field], get_response['user'][field])
 
@@ -292,8 +280,6 @@ class UserTestSuite(unittest.TestCase):
         # create a user
         user_info = {
             'user_name': 'integration_test',
-            'first_name': 'integration_test_first_name',
-            'last_name': 'integration_test_last_name',
             'email': 'integration_test@email.com',
             'password': 'abcxyz'
         }

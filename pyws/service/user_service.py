@@ -21,8 +21,8 @@ def get_qualified_users(individual_preference, shared_preference, page=1):
     return users
 
 
-def get_user_by_user_name(user_name):
-    user = _user_data.get_user_by_user_name(user_name)
+def get_user_by_user_email(user_email):
+    user = _user_data.get_user_by_user_email(user_email)
     return data_helper.filter_deleted_model(user)
 
 
