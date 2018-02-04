@@ -102,8 +102,6 @@ class UserTestSuite(unittest.TestCase):
     def test_create_user_pos(self):
         """test successfully creating a user"""
 
-        one_hour_ago = (datetime.utcnow() - timedelta(hours=1)).isoformat()
-
         user_info = {
             # required fields
             'user_name': 'integration_test',
@@ -126,9 +124,9 @@ class UserTestSuite(unittest.TestCase):
             self.assertNotIn('password', response['user'])
 
             # make sure private fields are properly handled
-            self.assertNotEqual(response['user']['id'], -1)
-            self.assertNotEqual(response['user']['created_time'], one_hour_ago)
-            self.assertNotEqual(response['user']['age_last_modified'], one_hour_ago)
+            self.assertNotEqual(response['user']['id'], None)
+            self.assertNotEqual(response['user']['created_time'], None)
+            self.assertNotEqual(response['user']['age_last_modified'], None)
             self.assertEqual(response['user']['profile_photo'], None)
             self.assertEqual(response['user']['last_deleted_time'], None)
 
@@ -205,8 +203,6 @@ class UserTestSuite(unittest.TestCase):
         auth_response = self.user_api.authenticate_user(user_info)
 
         # update a user
-        one_hour_ago = (datetime.utcnow() - timedelta(hours=1)).isoformat()
-
         update_user_info = {
             'user_name': 'update_test',
             'email': 'update_test@email.com',
