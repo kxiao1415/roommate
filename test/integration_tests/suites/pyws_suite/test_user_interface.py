@@ -357,6 +357,21 @@ class UserTestSuite(unittest.TestCase):
         response = self.user_api.get_password_reset_email(self.test_user_info['email'])
         self.assertIn('success', response)
 
+    def test_using_output_from_get_to_update_pos(self):
+        """test using get user out to update user"""
+
+        get_response = self.user_api.get_user(self.test_user_id)
+
+        # change just user email for update
+        user_data = get_response['user']
+        user_data['email'] = 'changed@test.test'
+
+        update_response = self.user_api.update_user(self.test_user_id, user_data, self.test_user_token)
+        self.assertIn('success', update_response)
+
+        get_response = self.user_api.get_user(self.test_user_id)
+        self.assertEqual(get_response['user']['email'], 'changed@test.test')
+
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:

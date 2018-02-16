@@ -79,8 +79,7 @@ def validate_json(required_fields=None, allowed_model=None):
                     else:
                         result.update(check_json_against_model(json[field], relationship_model))
 
-            elif field not in model.__table__.columns.keys() or \
-                    ('_private_columns' in dir(model) and field in model.private_columns()):
+            elif field not in model.__table__.columns.keys():
                 not_allowed_fields.append(field)
 
         if not not_allowed_fields:
