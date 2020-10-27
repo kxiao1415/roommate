@@ -3,7 +3,7 @@ asn1crypto==0.24.0
 blinker==1.4
 cffi==1.11.2
 click==6.7
-cryptography==2.1.4
+cryptography==3.2
 Flask==0.12.2
 Flask-Mail==0.9.1
 Flask-Migrate==1.8.0
